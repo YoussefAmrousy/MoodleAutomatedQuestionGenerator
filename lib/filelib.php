@@ -1,4 +1,6 @@
 <?php
+use mod_bigbluebuttonbn\extension;
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -1197,24 +1199,21 @@ function file_save_draft_area_files($draftitemid, $contextid, $component, $filea
     }
 
     $draftfiles = $fs->get_area_files($usercontext->id, 'user', 'draft', $draftitemid, 'id');
-    foreach ($draftfiles as $draftfile) {
-        if (!str_contains($draftfile->get_filename(), '.docx') || !str_contains($draftfile->get_filename(), '.doc' || !str_contains($draftfile->get_filename(), '.pdf') || !str_contains($draftfile->get_filename(), '.pptx'))) {
-            print_error('Only .docx, .doc, .pdf, and .pptx files are allowed', 'Lecture Upload');
-        }
-        $file = $draftfile->get_filepath() . $draftfile->get_filename();
-        $fileArg = escapeshellarg($file);
+    // foreach ($draftfiles as $draftfile) {
+    //     $file = $draftfile->get_filepath() . $draftfile->get_filename();
+    //     $fileArg = escapeshellarg($file);
 
-        $pythonScriptPath = "/opt/homebrew/var/www/moodle/question-generator.py";
+    //     $pythonScriptPath = "/opt/homebrew/var/www/moodle/question-generator.py";
 
-        $command = "python3 $pythonScriptPath $fileArg";
-        $output = shell_exec($command);
+    //     $command = "python3 $pythonScriptPath $fileArg";
+    //     $output = shell_exec($command);
 
-        if ($output === null) {
-            print_error("Error generating questions", "Lecture Upload");
-        } else {
-            echo $output;
-        }
-    }
+    //     if ($output === null) {
+    //         print_error("Error generating questions", "Lecture Upload");
+    //     } else {
+    //         echo $output;
+    //     }
+    // }
 
     $executedOutput = ob_get_clean();
     echo $executedOutput;
@@ -1236,8 +1235,11 @@ function file_save_draft_area_files($draftitemid, $contextid, $component, $filea
             if (!$allowreferences && $file->is_external_file()) {
                 continue;
             }
+            if (!str_ends_with($file->get_filename(), '.pdf')) {
+                continue;
+            }
             if (!$file->is_directory()) {
-            // Check to see if this file was uploaded by someone who can ignore the file size limits.
+                // Check to see if this file was uploaded by someone who can ignore the file size limits.
                 $fileusermaxbytes = get_user_max_upload_file_size($context, $options['maxbytes'], 0, 0, $file->get_userid());
                 if (
                     $fileusermaxbytes != USER_CAN_IGNORE_FILE_SIZE_LIMITS
