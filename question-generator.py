@@ -32,8 +32,3 @@ def generate_questions(file):
         generated_question_answers.append((generated_question, answer))
 
     return generated_question_answers
-
-pdf_path = '/Users/youssefalamrousy/Desktop/Uni/Graduation-Project/proof-of-concept/lecture_removed.pdf'
-generated_questions, generated_answers = generate_questions(pdf_path)
-print("Generated Question & Answers:")
-print(generated_answers)
