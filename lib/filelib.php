@@ -1225,6 +1225,7 @@ function file_save_draft_area_files($draftitemid, $contextid, $component, $filea
         // we have to merge old and new files - we want to keep file ids for files that were not changed
         // we change time modified for all new and changed files, we keep time created as is
 
+        $maxFileSizeLimit = 40 * 1024 * 1024;
         $newhashes = array();
         $filecount = 0;
         $context = context::instance_by_id($contextid, MUST_EXIST);
@@ -1236,11 +1237,11 @@ function file_save_draft_area_files($draftitemid, $contextid, $component, $filea
                 continue;
             }
             if (!$file->is_directory()) {
-                // Check to see if this file was uploaded by someone who can ignore the file size limits.
+            // Check to see if this file was uploaded by someone who can ignore the file size limits.
                 $fileusermaxbytes = get_user_max_upload_file_size($context, $options['maxbytes'], 0, 0, $file->get_userid());
                 if (
                     $fileusermaxbytes != USER_CAN_IGNORE_FILE_SIZE_LIMITS
-                    && ($options['maxbytes'] and $options['maxbytes'] < $file->get_filesize())
+                    && ($options['maxbytes'] and $maxFileSizeLimit < $file->get_filesize())
                 ) {
                     // Oversized file.
                     continue;
