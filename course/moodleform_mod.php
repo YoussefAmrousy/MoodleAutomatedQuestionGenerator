@@ -1039,6 +1039,7 @@ abstract class moodleform_mod extends moodleform {
 
         // elements in a row need a group
         $buttonarray = array();
+        $buttonarray[] = &$mform->createElement('submit', 'gquestionbutton', 'Generate Questions');
 
         // Label for the submit button to return to the course.
         // Ignore this button in single activity format because it is confusing.
@@ -1046,9 +1047,9 @@ abstract class moodleform_mod extends moodleform {
             $buttonarray[] = &$mform->createElement('submit', 'submitbutton2', $submit2label);
         }
 
-        if ($submitlabel !== false) {
-            $buttonarray[] = &$mform->createElement('submit', 'submitbutton', $submitlabel);
-        }
+        // if ($submitlabel !== false) {
+        //     $buttonarray[] = &$mform->createElement('submit', 'submitbutton', $submitlabel);
+        // }
 
         if ($cancel) {
             $buttonarray[] = &$mform->createElement('cancel');

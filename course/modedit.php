@@ -193,7 +193,10 @@ if ($mform->is_cancelled()) {
         if (!empty($fromform->showgradingmanagement)) {
             $url = $fromform->gradingman->get_management_url($url);
         }
-    } else {
+    } else if (isset($fromform->gquestionbutton)) {
+        $url = new moodle_url("/question/edit.php", array('courseid' => $fromform->course));
+    } 
+    else {
         $url = course_get_url($course, $cw->section, array('sr' => $sectionreturn));
     }
 
