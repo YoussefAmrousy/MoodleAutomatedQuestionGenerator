@@ -14,7 +14,7 @@ def file_to_text(filepath):
 
     return text
 
-def generate_questions(filepath, num_questions=3):
+def generate_questions(filepath):
     input_text = file_to_text(filepath)
 
     seed_value = hash(input_text) % (2**32 - 1)
@@ -22,6 +22,9 @@ def generate_questions(filepath, num_questions=3):
 
     question_generator = pipeline("text2text-generation", model="voidful/bart-eqg-question-generator")
     qa_generator = pipeline("question-answering", model="bert-large-uncased-whole-word-masking-finetuned-squad")
+
+    # Prompt the user for the number of questions to generate
+    num_questions = int(input("Enter the number of questions to generate: "))
     
     questions = question_generator(input_text, max_length=100, num_return_sequences=num_questions)
     generated_questions = [question['generated_text'].strip() for question in questions]
@@ -40,4 +43,4 @@ if __name__ == "__main__":
         sys.exit(1)
 
     file_path = sys.argv[1]
-    generate_questions(file_path, num_questions=3)
+    generate_questions(file_path)
