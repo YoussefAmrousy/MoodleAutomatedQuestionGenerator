@@ -1235,9 +1235,6 @@ function file_save_draft_area_files($draftitemid, $contextid, $component, $filea
             if (!$allowreferences && $file->is_external_file()) {
                 continue;
             }
-            if (!str_ends_with($file->get_filename(), '.pdf')) {
-                continue;
-            }
             if (!$file->is_directory()) {
                 // Check to see if this file was uploaded by someone who can ignore the file size limits.
                 $fileusermaxbytes = get_user_max_upload_file_size($context, $options['maxbytes'], 0, 0, $file->get_userid());
