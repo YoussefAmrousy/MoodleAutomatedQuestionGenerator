@@ -67,6 +67,8 @@ $string['courseaccess'] = 'Course access';
 $string['coursealreadyfinished'] = 'Course already finished';
 $string['coursecommunication_desc'] = 'The default communication service for new courses. Existing courses will not have any provider selected by default.';
 $string['coursecontentnotification'] = 'Send content change notification';
+$string['generatequestions'] = 'Generate questions on saving';
+$string['generatequestions_help'] = 'Tick the box to generate questions for this lecture file. PDF files only are supported.';
 $string['coursecontentnotifnew'] = '{$a->coursename} new content';
 $string['coursecontentnotifnewbody'] = '<p>{$a->moduletypename} <a href="{$a->link}">{$a->modulename}</a> is new in the course <a href="{$a->courselink}">{$a->coursename}</a>.</p><p><a href="{$a->notificationpreferenceslink}">Change your notification preferences</a></p>';
 $string['coursecontentnotifupdate'] = '{$a->coursename} content change';

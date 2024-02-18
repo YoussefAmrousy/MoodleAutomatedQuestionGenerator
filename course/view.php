@@ -28,6 +28,11 @@ require_once($CFG->libdir.'/completionlib.php');
 
 redirect_if_major_upgrade_required();
 
+session_start();
+unset($_SESSION['courseid']);
+unset($_SESSION['redirect']);
+unset($_SESSION['id']);
+
 $id = optional_param('id', 0, PARAM_INT);
 $name = optional_param('name', '', PARAM_TEXT);
 $edit = optional_param('edit', -1, PARAM_BOOL);
@@ -283,7 +288,7 @@ if ($section && $section > 0 && course_format_uses_sections($course->format)) {
 // Add bulk editing control.
 $bulkbutton = $renderer->bulk_editing_button($format);
 if (!empty($bulkbutton)) {
-    $PAGE->add_header_action($bulkbutton);
+$PAGE->add_header_action($bulkbutton);
 }
 
 $PAGE->set_heading($course->fullname);

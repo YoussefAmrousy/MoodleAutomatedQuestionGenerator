@@ -44,12 +44,6 @@ require_once($CFG->dirroot.'/course/lib.php');
  * @return object the updated module info
  */
 
-function generate_question($moduleinfo, $course, $mform = null) {
-        $introeditor = $moduleinfo->introeditor;
-        $moduleinfo->intro       = $introeditor['text'];
-        $moduleinfo->introformat = $introeditor['format'];
-}
-
 function add_moduleinfo($moduleinfo, $course, $mform = null) {
     global $DB, $CFG;
 

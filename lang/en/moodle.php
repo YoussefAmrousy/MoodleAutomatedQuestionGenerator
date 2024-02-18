@@ -2473,6 +2473,7 @@ $string['yourteacher'] = 'your {$a}';
 $string['yourwordforx'] = 'Your word for \'{$a}\'';
 $string['zippingbackup'] = 'Zipping backup';
 $string['deprecatedeventname'] = '{$a} (no longer in use)';
+$string['generatequestions'] = 'Generate questions';
 
 // Deprecated since Moodle 4.0.
 $string['createuserandpass'] = 'Choose your username and password';

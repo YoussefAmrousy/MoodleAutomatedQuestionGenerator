@@ -1023,33 +1023,21 @@ abstract class moodleform_mod extends moodleform {
      * @return void
      */
     function add_action_buttons($cancel=true, $submitlabel=null, $submit2label=null) {
-        if (is_null($submitlabel)) {
-            $submitlabel = get_string('savechangesanddisplay');
-        }
-
-        if (is_null($submit2label)) {
-            $submit2label = get_string('savechangesandreturntocourse');
-        }
-
         $mform = $this->_form;
 
-        $mform->addElement('checkbox', 'coursecontentnotification', get_string('coursecontentnotification', 'course'));
-        $mform->addHelpButton('coursecontentnotification', 'coursecontentnotification', 'course');
-        $mform->closeHeaderBefore('coursecontentnotification');
+        $mform->addElement('checkbox', 'generatequestions', get_string('generatequestions', 'course'));
+        $mform->addHelpButton('generatequestions', 'generatequestions', 'course');
+        $mform->closeHeaderBefore('generatequestions');
+
 
         // elements in a row need a group
         $buttonarray = array();
-        $buttonarray[] = &$mform->createElement('submit', 'gquestionbutton', 'Generate Questions');
 
         // Label for the submit button to return to the course.
         // Ignore this button in single activity format because it is confusing.
         if ($submit2label !== false && $this->courseformat->has_view_page()) {
-            $buttonarray[] = &$mform->createElement('submit', 'submitbutton2', $submit2label);
+            $buttonarray[] = &$mform->createElement('submit', 'submitbutton2', 'Save Changes');
         }
-
-        // if ($submitlabel !== false) {
-        //     $buttonarray[] = &$mform->createElement('submit', 'submitbutton', $submitlabel);
-        // }
 
         if ($cancel) {
             $buttonarray[] = &$mform->createElement('cancel');

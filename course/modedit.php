@@ -149,7 +149,6 @@ $PAGE->set_pagetype($pagepath);
 $PAGE->set_pagelayout('admin');
 $PAGE->add_body_class('limitedwidth');
 
-
 $modmoodleform = "$CFG->dirroot/mod/$module->name/mod_form.php";
 if (file_exists($modmoodleform)) {
     require_once($modmoodleform);
@@ -193,12 +192,30 @@ if ($mform->is_cancelled()) {
         if (!empty($fromform->showgradingmanagement)) {
             $url = $fromform->gradingman->get_management_url($url);
         }
-    } else if (isset($fromform->gquestionbutton)) {
-        $url = new moodle_url("/question/edit.php", array('courseid' => $fromform->course));
-    } 
-    else {
-        $url = course_get_url($course, $cw->section, array('sr' => $sectionreturn));
-    }
+    } else if (isset($fromform->generatequestions) && isset($fromform->submitbutton2)) {
+        $course = $course = get_course($fromform->course);
+        $cm = get_coursemodule_from_id('resource', $id, $course->id); 
+        $context = context_module::instance($fromform->coursemodule);
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($context->id, 'mod_resource', 'content', 0, 'sortorder DESC, id ASC', false);
+        
+        if (count($files) < 1) {
+            print_error('Invalid File', 'error');
+        }
+        
+        $file = reset($files);
+        unset($files);
+        $mimetype = $file->get_mimetype();
+        
+        if ($mimetype != 'application/pdf') {
+            $url = course_get_url($course, $cw->section, array('sr' => $sectionreturn));
+            throw new \moodle_exception('invalidfiletype', 'local_questiongenerator', $url, );
+        } else {
+            $urlparams = array('courseid' => $fromform->course, 'id' => $fromform->coursemodule, 'redirect' => 1);
+            $url = new moodle_url("/local/questiongenerator/edit.php", $urlparams);        }
+        } else {
+            $url = course_get_url($course, $cw->section, array('sr' => $sectionreturn));
+        }
 
     // If we need to regrade the course with a progress bar as a result of updating this module,
     // redirect first to the page that will do this.

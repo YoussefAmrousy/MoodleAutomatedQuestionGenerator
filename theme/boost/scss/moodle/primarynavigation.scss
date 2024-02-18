@@ -3,7 +3,8 @@
         height: $navbar-height;
         .nav-link {
             height: $navbar-height;
-            color: $gray-900;
+            color: rgba(0, 0, 0, .6) !important;
+            font-weight: bold;
             border-top: 3px solid transparent;
         }
     }

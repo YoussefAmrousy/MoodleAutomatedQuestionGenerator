@@ -1199,21 +1199,6 @@ function file_save_draft_area_files($draftitemid, $contextid, $component, $filea
     }
 
     $draftfiles = $fs->get_area_files($usercontext->id, 'user', 'draft', $draftitemid, 'id');
-    // foreach ($draftfiles as $draftfile) {
-    //     $file = $draftfile->get_filepath() . $draftfile->get_filename();
-    //     $fileArg = escapeshellarg($file);
-
-    //     $pythonScriptPath = "/opt/homebrew/var/www/moodle/question-generator.py";
-
-    //     $command = "python3 $pythonScriptPath $fileArg";
-    //     $output = shell_exec($command);
-
-    //     if ($output === null) {
-    //         print_error("Error generating questions", "Lecture Upload");
-    //     } else {
-    //         echo $output;
-    //     }
-    // }
 
     $executedOutput = ob_get_clean();
     echo $executedOutput;

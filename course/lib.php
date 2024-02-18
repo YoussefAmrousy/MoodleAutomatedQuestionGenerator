@@ -1671,7 +1671,7 @@ function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null) {
         $str = get_strings(
             [
                 'delete', 'move', 'moveright', 'moveleft', 'editsettings',
-                'duplicate', 'availability'
+                'duplicate', 'availability', 'generatequestions'
             ],
             'moodle'
         );
@@ -1836,6 +1836,13 @@ function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null) {
             ]
         );
     }
+
+    $actions['generatequestions'] = new action_menu_link_secondary(
+            new moodle_url('/local/questiongenerator/edit.php', array('courseid' => $mod->course, 'id' => $mod->id, 'redirect' => 1)),
+            new pix_icon('e/help', '', 'moodle', array('class' => 'iconsmall')),
+            $str->generatequestions,
+            array('class' => 'editing_assign', 'data-action' => 'assignroles', 'data-sectionreturn' => $sr)
+        );
 
     return $actions;
 }
