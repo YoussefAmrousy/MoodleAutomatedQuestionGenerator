@@ -56,10 +56,6 @@ echo '</style>';
 echo '<h2 class="lecture-name" id="lecture-name">Lecture ' . $activityname . '</h2>';
 echo '<div class="card card-container">';
 
-$courseurl = new moodle_url('/course/view.php', array('id' => $courseid));
-$form = new generate_form();
-
-// Get File
 $context = context_module::instance($cm->id);
 $fs = get_file_storage();
 $files = $fs->get_area_files($context->id, 'mod_resource', 'content', 0, 'sortorder DESC, id ASC', false);
@@ -70,24 +66,16 @@ if (count($files) < 1) {
     unset($files);
 }
 
-// $url = moodle_url::make_pluginfile_url(
-//     $file->get_contextid(),
-//     $file->get_component(),
-//     $file->get_filearea(),
-//     $file->get_itemid(),
-//     $file->get_filepath(),
-//     $file->get_filename(),
-//     false                 
-// );
-// var_dump($url);
-// $contents = $file->get_content();
-
-$content = $file->get_mimetype();
-var_dump($content);
+$courseurl = new moodle_url('/course/view.php', array('id' => $courseid));
+$form = new generate_form();
 
 if ($form->is_cancelled()) {
     redirect($courseurl);
 } elseif ($form_data = $form->get_data()) {
+    $contents = $file->get_content();
+    $filepath = '/opt/homebrew/var/www/moodle/local/questiongenerator/lecture-files' . $activityname . '.pdf';
+    file_put_contents($filepath, $contents);
+
     echo '<div class="loading-screen" id="loadingScreen">Generating Questions...</div>';
     echo '<script>';
     echo 'document.getElementById("loadingScreen").style.display = "block";';
@@ -96,9 +84,8 @@ if ($form->is_cancelled()) {
 
     ob_flush();
     flush();
-    $python_script = '/opt/homebrew/var/www/moodle/question-generator.py';
-    $file_path = '/Users/youssefalamrousy/Desktop/Uni/Graduation-Project/proof-of-concept/lecture_removed.pdf';
-    $command = "python3 $python_script $file_path " . (int)$form_data->questionsnumber;
+    $python_script = '/opt/homebrew/var/www/moodle/local/questiongenerator/scripts/question-generator.py';
+    $command = "python3 $python_script $filepath " . (int)$form_data->questionsnumber;
     exec($command, $output, $return_var);
 
     echo '<script>';

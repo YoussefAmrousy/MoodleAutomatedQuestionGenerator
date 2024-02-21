@@ -39,7 +39,7 @@ def generate_questions(filepath, questionsNum):
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print("Usage: python generate_questions_script.py <file_path> <questionsNum>")
+        print("Usage: python generate_questions_script_path.py <file_path> <questionsNum>")
         sys.exit(1)
 
     file_path = sys.argv[1]
