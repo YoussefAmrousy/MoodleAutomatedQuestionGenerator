@@ -72,7 +72,6 @@ $form = new generate_form();
 if ($form->is_cancelled()) {
     redirect($courseurl);
 } elseif ($form_data = $form->get_data()) {
-    var_dump($file);
     $contents = $file->get_content();
     $filepath = '/opt/homebrew/var/www/moodle/local/questiongenerator/lecture-files/' . $activityname . '.pdf';
     file_put_contents($filepath, $contents);
