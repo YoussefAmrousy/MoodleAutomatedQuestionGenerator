@@ -326,6 +326,7 @@ switch ($action) {
         break;
     case 'upload':
         $result = $repo->upload($saveas_filename, $maxbytes);
+        
         ajax_check_captured_output();
         echo json_encode($result);
         break;
