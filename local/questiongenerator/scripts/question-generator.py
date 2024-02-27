@@ -2,6 +2,7 @@ from transformers import pipeline
 import torch
 import fitz
 import sys
+import csv
 
 def extract_text_from_page(page):
     return page.get_text()
@@ -32,10 +33,35 @@ def generate_questions(filepath, questionsNum):
     generated_question_answers = []
     for generated_question in generated_questions:
         qa_result = qa_generator(question=generated_question, context=input_text)
-        answer = qa_result['answer'].replace('\n', '').capitalize()
-        generated_question_answers.append((generated_question, answer))
+        answer = qa_result['answer'].replace('\n', ' ').capitalize()
+        generated_question_answers.append([generated_question, answer])
+
+    save_dataset_to_csv(generated_question_answers)
 
     print(generated_question_answers)
+
+def save_dataset_to_csv(dataset):
+    csv_filename = "/opt/homebrew/var/www/moodle/local/questiongenerator/scripts/questions.csv"
+    with open(csv_filename, 'a', newline='') as csvfile:
+        fieldnames = ['Id', 'Question', 'Answer']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        if csvfile.tell() == 0:
+            writer.writeheader()
+
+        last_index = 0
+
+        try:
+            with open(csv_filename, 'r') as csvfile_read:
+                reader = csv.DictReader(csvfile_read)
+                if 'Id' in reader.fieldnames:
+                    for row in reader:
+                        last_index = max(last_index, int(row['Id']))
+        except FileNotFoundError:
+            pass
+
+        for idx, q_instance in enumerate(dataset, start=last_index + 1):
+            writer.writerow({'Id': idx, 'Question': q_instance[0], 'Answer': q_instance[1]})
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
@@ -45,3 +71,4 @@ if __name__ == "__main__":
     file_path = sys.argv[1]
     questionsNum = int(sys.argv[2])
     generate_questions(file_path, questionsNum)
+

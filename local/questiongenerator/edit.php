@@ -3,7 +3,6 @@ require_once('../../config.php');
 require_once('lib/forms/generate_form.php'); 
 
 session_start();
-global $DB;
 
 $courseid = optional_param('courseid', 0, PARAM_INT);
 $id = optional_param('id', 0, PARAM_INT); // Activity Id
@@ -40,8 +39,9 @@ if (!$_SESSION['courseid'] && !$_SESSION['id']) {
     $_SESSION['id'] = $id;
 }
 
-
 $activityname = $cm->name;
+$_SESSION['activityname'] = $activityname;
+
 $url = new moodle_url('/local/questiongenerator/edit.php', array('courseid' => $course->id, 'id' => $cm->id));
 $PAGE->set_url($url);
 $PAGE->set_title('Generate Questions');
@@ -72,8 +72,9 @@ $form = new generate_form();
 if ($form->is_cancelled()) {
     redirect($courseurl);
 } elseif ($form_data = $form->get_data()) {
+    var_dump($file);
     $contents = $file->get_content();
-    $filepath = '/opt/homebrew/var/www/moodle/local/questiongenerator/lecture-files' . $activityname . '.pdf';
+    $filepath = '/opt/homebrew/var/www/moodle/local/questiongenerator/lecture-files/' . $activityname . '.pdf';
     file_put_contents($filepath, $contents);
 
     echo '<div class="loading-screen" id="loadingScreen">Generating Questions...</div>';
