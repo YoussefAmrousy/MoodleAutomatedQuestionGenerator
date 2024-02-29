@@ -1,6 +1,6 @@
 <?php
 require_once('../../config.php');
-require_once('lib/forms/generate_form.php'); 
+require_once('lib/forms/generate_question.php'); 
 
 session_start();
 
@@ -67,13 +67,14 @@ if (count($files) < 1) {
 }
 
 $courseurl = new moodle_url('/course/view.php', array('id' => $courseid));
-$form = new generate_form();
+$form = new generate_question();
 
 if ($form->is_cancelled()) {
     redirect($courseurl);
 } elseif ($form_data = $form->get_data()) {
     $contents = $file->get_content();
-    $filepath = '/opt/homebrew/var/www/moodle/local/questiongenerator/lecture-files/' . $activityname . '.pdf';
+    $lecturename = str_replace(' ', '', $activityname);
+    $filepath = '/opt/homebrew/var/www/moodle/local/questiongenerator/lecture-files/' . $lecturename . '.pdf'; // Change to the path you want
     file_put_contents($filepath, $contents);
 
     echo '<div class="loading-screen" id="loadingScreen">Generating Questions...</div>';
@@ -84,7 +85,7 @@ if ($form->is_cancelled()) {
 
     ob_flush();
     flush();
-    $python_script = '/opt/homebrew/var/www/moodle/local/questiongenerator/scripts/question-generator.py';
+    $python_script = '/opt/homebrew/var/www/moodle/local/questiongenerator/scripts/question-generator.py'; // This is the path to the Python script, change it to your path
     $command = "python3 $python_script $filepath " . (int)$form_data->questionsnumber;
     exec($command, $output, $return_var);
 
