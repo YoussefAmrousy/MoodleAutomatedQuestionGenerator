@@ -1,6 +1,6 @@
 <?php
 require_once('../../config.php');
-require_once('lib/forms/generate_question.php'); 
+require_once('lib/forms/generate_question.php');
 
 session_start();
 
@@ -86,7 +86,7 @@ if ($form->is_cancelled()) {
     ob_flush();
     flush();
     $python_script = '/opt/homebrew/var/www/moodle/local/questiongenerator/scripts/question-generator.py'; // This is the path to the Python script, change it to your path
-    $command = "python3 $python_script $filepath " . (int)$form_data->questionsnumber;
+    $command = "python3 $python_script $filepath " . (int) $form_data->questionsnumber;
     exec($command, $output, $return_var);
 
     echo '<script>';
@@ -94,7 +94,9 @@ if ($form->is_cancelled()) {
     echo '</script>';
 
     if ($return_var == 0) {
-        var_dump ($output);
+        $_SESSION['question_output'] = $output;
+
+        redirect(new moodle_url('/local/questiongenerator/view.php', array('courseid' => $course->id, 'id' => $cm->id)));
     } else {
         var_dump('Error executing Python script!');
     }

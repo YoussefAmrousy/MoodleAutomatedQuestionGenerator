@@ -18,16 +18,6 @@ def file_to_text(filepath):
 
     return text
 
-def bubble_sort(arr):
-    n = len(arr)
-
-    for i in range(n - 1):
-        for j in range(0, n - i - 1):
-            if len(arr[j][0]) > len(arr[j + 1][0]):
-                arr[j], arr[j + 1] = arr[j + 1], arr[j]
-
-    return arr
-
 def generate_questions(filepath, questionsNum):
     input_text = file_to_text(filepath)
 
@@ -44,13 +34,10 @@ def generate_questions(filepath, questionsNum):
     for generated_question in generated_questions:
         qa_result = qa_generator(question=generated_question, context=input_text)
         answer = qa_result['answer'].replace('\n', ' ').capitalize()
-        generated_question_answers.append([generated_question, answer])
+        generated_question_answers.append((generated_question, answer))
+    save_dataset_to_csv(generated_question_answers)
 
-    sorted_questions = bubble_sort(generated_question_answers)
-
-    save_dataset_to_csv(sorted_questions)
-
-    print(sorted_questions)
+    print(generated_question_answers)
 
 def save_dataset_to_csv(dataset):
     csv_filename = "/opt/homebrew/var/www/moodle/local/questiongenerator/scripts/questions.csv"
