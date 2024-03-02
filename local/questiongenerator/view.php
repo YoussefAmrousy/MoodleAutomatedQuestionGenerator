@@ -1,6 +1,30 @@
 <?php
 require_once('../../config.php');
 
+$courseid = optional_param('courseid', 0, PARAM_INT);
+$id = optional_param('id', 0, PARAM_INT);
+
+
+$course = get_course($courseid);
+$cm = get_coursemodule_from_id('resource', $id, $course->id);
+
+if (!$course) {
+    print_error('invalidcourse', 'error');
+}
+
+if (!$cm && $cm->course != $course->id) {
+    print_error('Invalid Activity Id/Course Id', 'error');
+}
+
+$PAGE->set_context(context_course::instance($courseid));
+$PAGE->set_pagelayout('course');
+$PAGE->set_url('/local/questiongenerator/view.php', array('courseid' => $courseid, 'id' => $id));
+$PAGE->set_title($cm->name . ' - ' . 'Preview Questions');
+$PAGE->set_heading($course->fullname);
+
+require_login($course, false);
+
+
 session_start();
 
 echo $OUTPUT->header();

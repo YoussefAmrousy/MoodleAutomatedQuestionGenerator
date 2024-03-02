@@ -24,7 +24,7 @@
 
 require_once('../config.php');
 require_once('lib.php');
-require_once($CFG->libdir.'/completionlib.php');
+require_once($CFG->libdir . '/completionlib.php');
 
 redirect_if_major_upgrade_required();
 
@@ -36,6 +36,7 @@ $filepath = '/opt/homebrew/var/www/moodle/local/questiongenerator/lecture-files/
 var_dump($filepath);
 unlink($filepath);
 unset($_SESSION['activityname']);
+unset($_SESSION['question_output']);
 
 $id = optional_param('id', 0, PARAM_INT);
 $name = optional_param('name', '', PARAM_TEXT);
@@ -48,7 +49,7 @@ $sectionid = optional_param('sectionid', 0, PARAM_INT);
 $section = optional_param('section', 0, PARAM_INT);
 $expandsection = optional_param('expandsection', -1, PARAM_INT);
 $move = optional_param('move', 0, PARAM_INT);
-$marker = optional_param('marker', -1 , PARAM_INT);
+$marker = optional_param('marker', -1, PARAM_INT);
 $switchrole = optional_param('switchrole', -1, PARAM_INT); // Deprecated, use course/switchrole.php instead.
 $return = optional_param('return', 0, PARAM_LOCALURL);
 
@@ -95,8 +96,10 @@ require_login($course);
 
 // Switchrole - sanity check in cost-order...
 $resetuserallowedediting = false;
-if ($switchrole > 0 && confirm_sesskey() &&
-    has_capability('moodle/role:switchroles', $context)) {
+if (
+    $switchrole > 0 && confirm_sesskey() &&
+    has_capability('moodle/role:switchroles', $context)
+) {
     // Is this role assignable in this context?
     // Inquiring minds want to know.
     $aroles = get_switchable_roles($context);
@@ -125,7 +128,7 @@ if (file_exists($CFG->dirroot . '/course/externservercourse.php')) {
     }
 }
 
-require_once($CFG->dirroot.'/calendar/lib.php'); // This is after login because it needs $USER.
+require_once($CFG->dirroot . '/calendar/lib.php'); // This is after login because it needs $USER.
 
 // Must set layout before gettting section info. See MDL-47555.
 $PAGE->set_pagelayout('course');
@@ -185,7 +188,7 @@ if ($PAGE->user_allowed_editing()) {
         $USER->editing = 1;
         // Redirect to site root if Editing is toggled on frontpage.
         if ($course->id == SITEID) {
-            redirect($CFG->wwwroot .'/?redirect=0');
+            redirect($CFG->wwwroot . '/?redirect=0');
         } else if (!empty($return)) {
             redirect($CFG->wwwroot . $return);
         } else {
@@ -200,7 +203,7 @@ if ($PAGE->user_allowed_editing()) {
         }
         // Redirect to site root if Editing is toggled on frontpage.
         if ($course->id == SITEID) {
-            redirect($CFG->wwwroot .'/?redirect=0');
+            redirect($CFG->wwwroot . '/?redirect=0');
         } else if (!empty($return)) {
             redirect($CFG->wwwroot . $return);
         } else {
@@ -228,8 +231,10 @@ if ($PAGE->user_allowed_editing()) {
         redirect(course_get_url($course, $newsection->section));
     }
 
-    if (!empty($section) && !empty($move) &&
-            has_capability('moodle/course:movesections', $context) && confirm_sesskey()) {
+    if (
+        !empty($section) && !empty($move) &&
+        has_capability('moodle/course:movesections', $context) && confirm_sesskey()
+    ) {
         $destsection = $section + $move;
         if (move_section_to($course, $section, $destsection)) {
             if ($course->id == SITEID) {
@@ -254,7 +259,7 @@ $SESSION->fromdiscussion = $PAGE->url->out(false);
 
 if ($course->id == SITEID) {
     // This course is not a real course.
-    redirect($CFG->wwwroot .'/?redirect=0');
+    redirect($CFG->wwwroot . '/?redirect=0');
 }
 
 // Determine whether the user has permission to download course content.
@@ -292,7 +297,7 @@ if ($section && $section > 0 && course_format_uses_sections($course->format)) {
 // Add bulk editing control.
 $bulkbutton = $renderer->bulk_editing_button($format);
 if (!empty($bulkbutton)) {
-$PAGE->add_header_action($bulkbutton);
+    $PAGE->add_header_action($bulkbutton);
 }
 
 $PAGE->set_heading($course->fullname);
@@ -343,7 +348,7 @@ $displaysection = $section;
 include_course_ajax($course, $modnamesused);
 
 // Include the actual course format.
-require($CFG->dirroot .'/course/format/'. $course->format .'/format.php');
+require($CFG->dirroot . '/course/format/' . $course->format . '/format.php');
 // Content wrapper end.
 
 echo html_writer::end_tag('div');
