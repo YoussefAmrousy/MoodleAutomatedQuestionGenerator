@@ -9,3 +9,107 @@ Id,Question,Answer
 8,What is the common feature of the three view models ?,"The functional structure, the deployment environment, the development constraints"
 9,What is the common feature of the four view models ?,Standardizes the software design documents
 10,What is the common feature of the four view models ?,Standardizes the software design documents
+11,What is the common feature of the four view models ?,Standardizes the software design documents
+12,What is special about the 4-4 view model ?,A multiple view model that addresses different features and concerns of the system
+13,What is the common feature of the four view models ?,Standardizes the software design documents
+14,What is special about the 4-4 view model ?,A multiple view model that addresses different features and concerns of the system
+15,What is the common feature of the four view models ?,Standardizes the software design documents
+16,What is special about the 4-4 view model ?,A multiple view model that addresses different features and concerns of the system
+17,What is the common feature of the four view models ?,Standardizes the software design documents
+18,What is the common feature of the four view models ?,Standardizes the software design documents
+19,What can be learned from the article ?,Viewpoints providing implicit structure and explicit guidance
+20,What is the common feature of the four view models ?,Coherent
+21,What is the common feature of the three view models ?,"The functional structure, the deployment environment, the development constraints"
+22,What can be learned from the article ?,Viewpoints providing implicit structure and explicit guidance
+23,What is the common feature of the four view models ?,Coherent
+24,What can be learned from the article ?,Viewpoints providing implicit structure and explicit guidance
+25,What is the common feature of the four view models ?,Coherent
+26,What is the common feature of the three view models ?,"The functional structure, the deployment environment, the development constraints"
+27,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+28,What should we do if we want to store some meta data ?,Sql commands
+29,What should we do if we want to store some meta data ?,Sql commands
+30,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+31,What should we do if we want to store some meta data ?,Sql commands
+32,"If we want to store our meta data in a new instance , we should",Sql commands
+33,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+34,What is special about the 4-4 view model ?,A multiple view model that addresses different features and concerns of the system
+35,What is the common feature of the four view models ?,Standardizes the software design documents
+36,What should we do if we want to store some meta data ?,Sql commands
+37,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+38,What should we do if we want to store some meta data ?,Sql commands
+39,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+40,What should we do if we want to store some meta data ?,Sql commands
+41,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+42,What can be learned from the article ?,Viewpoints providing implicit structure and explicit guidance
+43,What is the common feature of the four view models ?,Coherent
+44,What can be learned from the article ?,Viewpoints providing implicit structure and explicit guidance
+45,What is the common feature of the four view models ?,Coherent
+46,What can be learned from the article ?,Viewpoints providing implicit structure and explicit guidance
+47,What is the common feature of the four view models ?,Coherent
+48,What can be learned from the article ?,Viewpoints providing implicit structure and explicit guidance
+49,What is the common feature of the four view models ?,Coherent
+50,What can be learned from the article ?,Viewpoints providing implicit structure and explicit guidance
+51,What is the common feature of the four view models ?,Coherent
+52,What can be learned from the article ?,Viewpoints providing implicit structure and explicit guidance
+53,What is the common feature of the four view models ?,Coherent
+54,What is the common feature of the three view models ?,"The functional structure, the deployment environment, the development constraints"
+55,What can be learned from the article ?,Viewpoints providing implicit structure and explicit guidance
+56,What is the common feature of the four view models ?,Coherent
+57,What is the common feature of the three view models ?,"The functional structure, the deployment environment, the development constraints"
+58,What can be learned from the article ?,Viewpoints providing implicit structure and explicit guidance
+59,What is the common feature of the four view models ?,Coherent
+60,What should we do if we want to store some meta data ?,Sql commands
+61,"If we want to store our meta data in a new instance , we should",Sql commands
+62,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+63,What should we do if we want to store some meta data ?,Sql commands
+64,"If we want to store our meta data in a new instance , we should",Sql commands
+65,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+66,What should we do if we want to store some meta data ?,Sql commands
+67,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+68,What should we do if we want to store some meta data ?,Sql commands
+69,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+70,What should we do if we want to store some meta data ?,Sql commands
+71,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+72,What should we do if we want to store some meta data ?,Sql commands
+73,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+74,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+75,What should we do if we want to store some meta data ?,Sql commands
+76,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+77,What should we do if we want to store some meta data ?,Sql commands
+78,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+79,What should we do if we want to store some meta data ?,Sql commands
+80,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+81,What should we do if we want to store some meta data ?,Sql commands
+82,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+83,What should we do if we want to store some meta data ?,Sql commands
+84,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+85,What should we do if we want to store some meta data ?,Sql commands
+86,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+87,What should we do if we want to store some meta data ?,Sql commands
+88,"If we want to store our meta data in a new instance , we should",Sql commands
+89,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+90,What should we do if we want to store some meta data ?,Sql commands
+91,"If we want to store our meta data in a new instance , we should",Sql commands
+92,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+93,What should we do if we want to store some meta data ?,Sql commands
+94,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+95,What should we do if we want to store some meta data ?,Sql commands
+96,"If we want to store our meta data in a new instance , we should",Sql commands
+97,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+98,What should we do if we want to store some meta data ?,Sql commands
+99,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+100,What should we do if we want to store some meta data ?,Sql commands
+101,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+102,What should we do if we want to store some meta data ?,Sql commands
+103,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+104,What should we do if we want to store some meta data ?,Sql commands
+105,"If we want to store our meta data in a new instance , we should",Sql commands
+106,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+107,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+108,What should we do if we want to store some meta data ?,Sql commands
+109,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+110,What should we do if we want to store some meta data ?,Sql commands
+111,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+112,What should we do if we want to store some meta data ?,Sql commands
+113,"If we want to store our meta data in a new instance , what should we do ?",Load from database
+114,What should we do if we want to store some meta data ?,Sql commands
