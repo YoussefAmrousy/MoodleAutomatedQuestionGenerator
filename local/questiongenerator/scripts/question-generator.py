@@ -1,20 +1,42 @@
-from transformers import pipeline, torch
 import xml.etree.ElementTree as ET
+from transformers import pipeline
+import torch
+import fitz
 import sys
-from transformers import pipeline, torch
-
-
+import os
 # ... (your existing code for question and answer generation) ...
 
+
 def save_questions_to_xml(generated_question_answers, filepath):
+    print("Executing the updated save_questions_to_xml function...")  # Diagnostic print
+    
     root = ET.Element('quiz')
+    
     for question, answer in generated_question_answers:
+        print(f"Adding question: {question}")  # Diagnostic print
+        
         question_element = ET.SubElement(root, 'question', type='shortanswer')
-        ET.SubElement(question_element, 'name').text = question
-        ET.SubElement(question_element, 'questiontext', format='html').text = question
-        ET.SubElement(question_element, 'answer', format='html').text = answer
+        
+        name_element = ET.SubElement(question_element, 'name')
+        ET.SubElement(name_element, 'text').text = question
+        
+        questiontext_element = ET.SubElement(question_element, 'questiontext', format='html')
+        ET.SubElement(questiontext_element, 'text').text = f"<![CDATA[{question}]]>"
+        
+        answer_element = ET.SubElement(question_element, 'answer', fraction="100", format='moodle_auto_format')
+        ET.SubElement(answer_element, 'text').text = answer
+        
+        ET.SubElement(question_element, 'generalfeedback', format='html').text = "<![CDATA[]]>"
+        ET.SubElement(question_element, 'defaultgrade').text = "1.0000000"
+        ET.SubElement(question_element, 'penalty').text = "0.3333333"
+        ET.SubElement(question_element, 'hidden').text = "0"
+        ET.SubElement(question_element, 'usecase').text = "0"
+
     tree = ET.ElementTree(root)
-    tree.write(filepath + '.xml', encoding='utf-8')
+    tree.write(filepath + '.xml', encoding='utf-8', xml_declaration=True)
+    print(f"XML file saved as {filepath}.xml")  # Diagnostic print
+
+
 
 # ... (rest of your code) ...
 
@@ -57,6 +79,7 @@ def generate_questions(filepath, questionsNum):
     return generated_question_answers
 
 if __name__ == "__main__":
+    print("Starting script...")  # Diagnostic print at the start
     if len(sys.argv) != 3:
         print("Usage: python generate_questions_script_path.py <file_path> <questionsNum>")
         sys.exit(1)
@@ -64,9 +87,10 @@ if __name__ == "__main__":
     file_path = sys.argv[1]
     questionsNum = int(sys.argv[2])
 
-    # Call the generate_questions function and capture the returned value
+    print(f"Generating questions for: {file_path} with {questionsNum} questions.")  # Diagnostic print
+
     generated_question_answers = generate_questions(file_path, questionsNum)
 
-    # Use the captured value in the save_questions_to_xml function call
+    print("Generated question and answers, proceeding to save...")  # Diagnostic print
+    
     save_questions_to_xml(generated_question_answers, "generated_questions")
-
