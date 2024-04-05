@@ -58,16 +58,6 @@ echo '</style>';
 echo '<h2 class="lecture-name" id="lecture-name">Lecture ' . $activityname . '</h2>';
 echo '<div class="card card-container">';
 
-// $context = context_module::instance($cm->id);
-// $fs = get_file_storage();
-// $files = $fs->get_area_files($context->id, 'mod_resource', 'content', 0, 'sortorder DESC, id ASC', false);
-// if (count($files) < 1) {
-//     print_error('Invalid File', 'error');
-// } else {
-//     $file = reset($files);
-//     unset($files);
-// }
-
 $context = context_module::instance($cm->id);
 $fs = get_file_storage();
 $files = $fs->get_area_files($context->id, 'mod_resource', 'content', 0, 'sortorder DESC, id ASC', false);
@@ -100,7 +90,6 @@ if ($form->is_cancelled()) {
 } elseif ($form_data = $form->get_data()) {
     $contents = $file->get_content();
     $lecturename = str_replace(' ', '', $activityname);
-//    $filepath = '/Users/mymac/Downloads/test.pdf'; // Change to the path you want
     file_put_contents($filepath, $contents);
 
     echo '<div class="loading-screen" id="loadingScreen">Generating Questions...</div>';
