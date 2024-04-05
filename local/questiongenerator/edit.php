@@ -15,7 +15,6 @@ if ($courseid == 0 && isset($_SESSION['courseid']) && $redirect == 0 && isset($_
     $id = $_SESSION['id'];
 }
 
-
 if ($courseid) {
     $course = get_course($courseid);
 }
@@ -80,7 +79,6 @@ if (count($files) < 1) {
     }
 }
 
-
 $courseurl = new moodle_url('/local/questiongenerator/view.php', array('courseid' => $course->id, 'id' => $cm->id, 'questiontype' => $questionType));
 
 $form = new generate_question();
@@ -88,9 +86,9 @@ $form = new generate_question();
 if ($form->is_cancelled()) {
     redirect($courseurl);
 } elseif ($form_data = $form->get_data()) {
-    $contents = $file->get_content();
-    $lecturename = str_replace(' ', '', $activityname);
-    file_put_contents($filepath, $contents);
+    // Create a temporary copy of the PDF file for processing
+    $temp_file = tempnam(sys_get_temp_dir(), 'pdf_');
+    copy($filepath, $temp_file);
 
     echo '<div class="loading-screen" id="loadingScreen">Generating Questions...</div>';
     echo '<script>';

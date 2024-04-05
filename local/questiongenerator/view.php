@@ -45,9 +45,14 @@ if (is_string($decoded_output)) {
     $question_pairs = $decoded_output;
 }
 } else {
-    // For essay questions, convert the output to the expected JSON format before decoding
-    $json_string = str_replace(array('(', ')', "'", ","), array('[', ']', '"', ','), $question_output);
-    $question_pairs = json_decode($json_string, true);
+   $decoded_output = json_decode($question_output, true);
+   // Check if the result is a string (indicating double-encoding)
+   if (is_string($decoded_output)) {
+    // Decode the inner JSON string
+        $question_pairs = json_decode($decoded_output, true);
+   } else {
+    // The output was not double-encoded, so use the decoded output directly
+        $question_pairs = $decoded_output;}
 }
 
 

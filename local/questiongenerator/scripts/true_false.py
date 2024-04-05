@@ -41,21 +41,34 @@ def generate_true_false_questions(filepath, questionsNum):
     question_generator = pipeline("text2text-generation", model="mrm8488/t5-base-finetuned-question-generation-ap")
     qa_generator = pipeline("question-answering", model="deepset/roberta-base-squad2")
 
-    questions = question_generator(input_text, max_length=100, num_return_sequences=questionsNum, num_beams=questionsNum)
-    generated_questions = [question['generated_text'].strip().capitalize() for question in questions]
-
     generated_question_answers = []
-    for generated_question in generated_questions:
-        qa_result = qa_generator(question=generated_question, context=input_text)
-        answer = qa_result['answer'].strip().capitalize()
 
-        # Check if the answer is present in the question text to determine the truth value
-        is_true = answer.lower() in generated_question.lower()
-        generated_question_answers.append([generated_question, is_true])
-    
+    # Split the input text into smaller segments
+    text_segments = [input_text[i:i + 512] for i in range(0, len(input_text), 512)]
+
+    for segment in text_segments:
+        num_beams = max(1, questionsNum // len(text_segments))
+
+        questions = question_generator(
+            segment,
+            max_length=100,
+            num_return_sequences=num_beams,
+            num_beams=num_beams
+        )
+        for question in questions:
+            question_text = question['generated_text'].strip().capitalize()
+            qa_result = qa_generator(question=question_text, context=segment)
+            answer = qa_result['answer'].strip().capitalize()
+            is_true = answer.lower() in question_text.lower()
+            generated_question_answers.append([question_text, is_true])
+
+        if len(generated_question_answers) >= questionsNum:
+            break
+
+    generated_question_answers = generated_question_answers[:questionsNum]
+
     output_json = json.dumps(generated_question_answers)
-    print(output_json)     
-
+    print(output_json)
 
     return generated_question_answers
 

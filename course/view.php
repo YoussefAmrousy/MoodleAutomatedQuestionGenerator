@@ -33,8 +33,6 @@ unset($_SESSION['courseid']);
 unset($_SESSION['redirect']);
 unset($_SESSION['id']);
 unset($_SESSION['questionType']);
-$filepath = '/Users/mymac/Downloads/test.pdf'; // Change to the path you want
-var_dump($filepath);
 unlink($filepath);
 unset($_SESSION['activityname']);
 unset($_SESSION['question_output']);
