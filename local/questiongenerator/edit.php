@@ -58,15 +58,38 @@ echo '</style>';
 echo '<h2 class="lecture-name" id="lecture-name">Lecture ' . $activityname . '</h2>';
 echo '<div class="card card-container">';
 
+// $context = context_module::instance($cm->id);
+// $fs = get_file_storage();
+// $files = $fs->get_area_files($context->id, 'mod_resource', 'content', 0, 'sortorder DESC, id ASC', false);
+// if (count($files) < 1) {
+//     print_error('Invalid File', 'error');
+// } else {
+//     $file = reset($files);
+//     unset($files);
+// }
+
 $context = context_module::instance($cm->id);
 $fs = get_file_storage();
 $files = $fs->get_area_files($context->id, 'mod_resource', 'content', 0, 'sortorder DESC, id ASC', false);
 if (count($files) < 1) {
     print_error('Invalid File', 'error');
 } else {
-    $file = reset($files);
-    unset($files);
+    $file = reset($files); // Get the first file
+
+    // Use the file's contenthash to construct a file path
+    $contenthash = $file->get_contenthash();
+    $l1 = $contenthash[0] . $contenthash[1];
+    $l2 = $contenthash[2] . $contenthash[3];
+    $filedir = $CFG->dataroot . '/filedir/' . $l1 . '/' . $l2 . '/' . $contenthash;
+    
+    // Check if the file exists in the filedir
+    if (file_exists($filedir)) {
+        $filepath = $filedir; // Use this file path for the Python script
+    } else {
+        print_error('File not found in filedir', 'error');
+    }
 }
+
 
 $courseurl = new moodle_url('/local/questiongenerator/view.php', array('courseid' => $course->id, 'id' => $cm->id, 'questiontype' => $questionType));
 
@@ -77,7 +100,7 @@ if ($form->is_cancelled()) {
 } elseif ($form_data = $form->get_data()) {
     $contents = $file->get_content();
     $lecturename = str_replace(' ', '', $activityname);
-    $filepath = '/Users/mymac/Downloads/test.pdf'; // Change to the path you want
+//    $filepath = '/Users/mymac/Downloads/test.pdf'; // Change to the path you want
     file_put_contents($filepath, $contents);
 
     echo '<div class="loading-screen" id="loadingScreen">Generating Questions...</div>';
