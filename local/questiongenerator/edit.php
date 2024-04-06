@@ -7,6 +7,7 @@ session_start();
 $courseid = optional_param('courseid', 0, PARAM_INT);
 $id = optional_param('id', 0, PARAM_INT); // Activity Id
 $redirect = optional_param('redirect', 0, PARAM_BOOL);
+$questionType = optional_param('questiontype', '', PARAM_TEXT);
 
 if ($courseid == 0 && isset($_SESSION['courseid']) && $redirect == 0 && isset($_SESSION['redirect']) && $id == 0 && isset($_SESSION['id'])) {
     $courseid = $_SESSION['courseid'];
@@ -62,20 +63,32 @@ $files = $fs->get_area_files($context->id, 'mod_resource', 'content', 0, 'sortor
 if (count($files) < 1) {
     print_error('Invalid File', 'error');
 } else {
-    $file = reset($files);
-    unset($files);
+    $file = reset($files); // Get the first file
+
+    // Use the file's contenthash to construct a file path
+    $contenthash = $file->get_contenthash();
+    $l1 = $contenthash[0] . $contenthash[1];
+    $l2 = $contenthash[2] . $contenthash[3];
+    $filedir = $CFG->dataroot . '/filedir/' . $l1 . '/' . $l2 . '/' . $contenthash;
+    
+    // Check if the file exists in the filedir
+    if (file_exists($filedir)) {
+        $filepath = $filedir; // Use this file path for the Python script
+    } else {
+        print_error('File not found in filedir', 'error');
+    }
 }
 
-$courseurl = new moodle_url('/course/view.php', array('id' => $courseid));
+$courseurl = new moodle_url('/local/questiongenerator/view.php', array('courseid' => $course->id, 'id' => $cm->id, 'questiontype' => $questionType));
+
 $form = new generate_question();
 
 if ($form->is_cancelled()) {
     redirect($courseurl);
 } elseif ($form_data = $form->get_data()) {
-    $contents = $file->get_content();
-    $lecturename = str_replace(' ', '', $activityname);
-    $filepath = '/opt/homebrew/var/www/moodle/local/questiongenerator/lecture-files/' . $lecturename . '.pdf'; // Change to the path you want
-    file_put_contents($filepath, $contents);
+    // Create a temporary copy of the PDF file for processing
+    $temp_file = tempnam(sys_get_temp_dir(), 'pdf_');
+    copy($filepath, $temp_file);
 
     echo '<div class="loading-screen" id="loadingScreen">Generating Questions...</div>';
     echo '<script>';
@@ -85,22 +98,43 @@ if ($form->is_cancelled()) {
 
     ob_flush();
     flush();
-    $python_script = '/opt/homebrew/var/www/moodle/local/questiongenerator/scripts/question-generator.py'; // This is the path to the Python script, change it to your path
-    $command = "python3 $python_script $filepath " . (int) $form_data->questionsnumber;
+   // Get the selected question type from the form data
+   $questionType = $form_data->questiontype;
+
+   // Set the path to the Python script based on the selected question type
+   switch ($questionType) {
+    case 'mcq':
+        $python_script = '/usr/local/var/www/moodle/local/questiongenerator/scripts/mcq.py';
+        break;
+    case 'truefalse':
+        $python_script = '/usr/local/var/www/moodle/local/questiongenerator/scripts/true_false.py';
+        break;
+    case 'shortanswer':
+        default:
+        $python_script = '/usr/local/var/www/moodle/local/questiongenerator/scripts/question-generator.py';
+        break;
+    }
+
+// Execute the Python script
+
+    $command = "python3.12 $python_script $filepath " . (int) $form_data->questionsnumber;
     exec($command, $output, $return_var);
+    
+
 
     echo '<script>';
     echo 'document.getElementById("loadingScreen").style.display = "none";';
     echo '</script>';
 
     if ($return_var == 0) {
-        $_SESSION['question_output'] = $output;
-
-        redirect(new moodle_url('/local/questiongenerator/view.php', array('courseid' => $course->id, 'id' => $cm->id)));
+        $output_json = implode("\n", $output);  // Combine the output lines into a single string
+        $_SESSION['question_output'] = $output_json;  // Store the JSON string in the session
+        redirect(new moodle_url('/local/questiongenerator/view.php', array('courseid' => $course->id, 'id' => $cm->id, 'questiontype' => $questionType)));
     } else {
         var_dump('Error executing Python script!');
     }
 }
+
 
 $form->display();
 

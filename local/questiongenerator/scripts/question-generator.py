@@ -4,6 +4,10 @@ import torch
 import fitz
 import sys
 import os
+from transformers import pipeline
+import torch
+import fitz  # PyMuPDF
+import json
 # ... (your existing code for question and answer generation) ...
 
 
@@ -38,8 +42,6 @@ def save_questions_to_xml(generated_question_answers, filepath):
 
 
 
-# ... (rest of your code) ...
-
 
 def extract_text_from_page(page):
     return page.get_text()
@@ -61,22 +63,43 @@ def generate_questions(filepath, questionsNum):
     seed_value = hash(input_text) % (2**32 - 1)
     torch.manual_seed(seed_value)
 
-    question_generator = pipeline("text2text-generation", model="voidful/bart-eqg-question-generator")
+    question_generator = pipeline("text2text-generation", model="t5-small")
     qa_generator = pipeline("question-answering", model="bert-large-uncased-whole-word-masking-finetuned-squad")
 
-    questions = question_generator(input_text, max_length=100, num_return_sequences=questionsNum)
-    generated_questions = [question['generated_text'].strip().capitalize() for question in questions]
-
-    # Calculate answers and define the variable here
     generated_question_answers = []
-    for generated_question in generated_questions:
-        qa_result = qa_generator(question=generated_question, context=input_text)
-        answer = qa_result['answer'].replace('\n', '').capitalize()
-        generated_question_answers.append((generated_question, answer))
 
-    print(generated_question_answers)
+    # If the input text is short, generate questions directly
+    if len(input_text) <= 512:
+        questions = question_generator(input_text, max_length=30, num_return_sequences=questionsNum, num_beams=10)
+        for question in questions:
+            question_text = question['generated_text'].strip().capitalize()
+            qa_result = qa_generator(question=question_text, context=input_text)
+            answer = qa_result['answer'].replace('\n', '').capitalize()
+            generated_question_answers.append((question_text, answer))
+    else:
+        # Split the input text into smaller segments
+        text_segments = [input_text[i:i+512] for i in range(0, len(input_text), 512)]
 
+        for segment in text_segments:
+            questions = question_generator(input_text, max_length=30, num_return_sequences=questionsNum, num_beams=10)
+            for question in questions:
+                question_text = question['generated_text'].strip().capitalize()
+                qa_result = qa_generator(question=question_text, context=segment)
+                answer = qa_result['answer'].replace('\n', '').capitalize()
+                generated_question_answers.append((question_text, answer))
+
+            # Break early if we've generated the desired number of questions
+            if len(generated_question_answers) >= questionsNum:
+                break
+
+    # Trim the list if it exceeds the desired number of questions
+    generated_question_answers = generated_question_answers[:questionsNum]
+
+    output_json = json.dumps(generated_question_answers)
+    print(output_json)
+    
     return generated_question_answers
+
 
 if __name__ == "__main__":
     print("Starting script...")  # Diagnostic print at the start
