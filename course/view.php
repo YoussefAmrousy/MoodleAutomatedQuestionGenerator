@@ -22,9 +22,9 @@
  * @package core_course
  */
 
-require_once('../config.php');
-require_once('lib.php');
-require_once($CFG->libdir . '/completionlib.php');
+require_once ('../config.php');
+require_once ('lib.php');
+require_once ($CFG->libdir . '/completionlib.php');
 
 redirect_if_major_upgrade_required();
 
@@ -32,7 +32,8 @@ session_start();
 unset($_SESSION['courseid']);
 unset($_SESSION['redirect']);
 unset($_SESSION['id']);
-unset($_SESSION['questionType']);
+$filepath = '/opt/homebrew/var/www/moodle/local/questiongenerator/lecture-files/' . $_SESSION['activityname'] . '.pdf';
+var_dump($filepath);
 unlink($filepath);
 unset($_SESSION['activityname']);
 unset($_SESSION['question_output']);
@@ -119,7 +120,7 @@ if (
 // If course is hosted on an external server, redirect to corresponding
 // url with appropriate authentication attached as parameter.
 if (file_exists($CFG->dirroot . '/course/externservercourse.php')) {
-    include($CFG->dirroot . '/course/externservercourse.php');
+    include ($CFG->dirroot . '/course/externservercourse.php');
     if (function_exists('extern_server_course')) {
         if ($externurl = extern_server_course($course)) {
             redirect($externurl);
@@ -127,7 +128,7 @@ if (file_exists($CFG->dirroot . '/course/externservercourse.php')) {
     }
 }
 
-require_once($CFG->dirroot . '/calendar/lib.php'); // This is after login because it needs $USER.
+require_once ($CFG->dirroot . '/calendar/lib.php'); // This is after login because it needs $USER.
 
 // Must set layout before gettting section info. See MDL-47555.
 $PAGE->set_pagelayout('course');
@@ -316,7 +317,7 @@ if (core_communication\api::is_available() && has_capability('moodle/course:upda
 if ($USER->editing == 1) {
 
     // MDL-65321 The backup libraries are quite heavy, only require the bare minimum.
-    require_once($CFG->dirroot . '/backup/util/helper/async_helper.class.php');
+    require_once ($CFG->dirroot . '/backup/util/helper/async_helper.class.php');
 
     if (async_helper::is_async_pending($id, 'course', 'backup')) {
         echo $OUTPUT->notification(get_string('pendingasyncedit', 'backup'), 'warning');
@@ -347,7 +348,7 @@ $displaysection = $section;
 include_course_ajax($course, $modnamesused);
 
 // Include the actual course format.
-require($CFG->dirroot . '/course/format/' . $course->format . '/format.php');
+require ($CFG->dirroot . '/course/format/' . $course->format . '/format.php');
 // Content wrapper end.
 
 echo html_writer::end_tag('div');

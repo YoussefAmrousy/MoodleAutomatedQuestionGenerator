@@ -5,7 +5,6 @@ $courseid = optional_param('courseid', 0, PARAM_INT);
 $id = optional_param('id', 0, PARAM_INT);
 $questionType = optional_param('questiontype', '', PARAM_TEXT);
 
-
 $course = get_course($courseid);
 $cm = get_coursemodule_from_id('resource', $id, $course->id);
 
@@ -25,12 +24,9 @@ $PAGE->set_heading($course->fullname);
 
 require_login($course, false);
 
-
 session_start();
 
-
 echo $OUTPUT->header();
-
 
 $question_output = isset($_SESSION['question_output']) ? $_SESSION['question_output'] : '[]';
 //Decode the JSON output based on the question type
@@ -55,15 +51,13 @@ if (is_string($decoded_output)) {
         $question_pairs = $decoded_output;}
 }
 
-
 $PAGE->set_title('Preview Questions');
 $PAGE->set_heading('Preview Questions');
 
 echo '<h2 class="lecture-name">Preview Questions</h2>';
 
-
 $table = new html_table();
-$table->head = array('Index', 'Question', 'Answer', 'Action');
+$table->head = array('Index', 'Question', 'Answer', 'Difficulty', 'Action');
 
 $counter = 0;
 
@@ -83,11 +77,11 @@ if ($questionType == "truefalse") {
         $question = $pair[0];
         $answer = $pair[1];
         $index = ++$counter;
+        $difficulty = $pair[2];
         $checkbox = html_writer::checkbox("selected_questions[]", $index, false);
-        $table->data[] = array($index, $question, $answer, $checkbox);
+        $table->data[] = array($index, $question, $answer, $difficulty, $checkbox);
     }
 }
-
 
 echo html_writer::table($table);
 

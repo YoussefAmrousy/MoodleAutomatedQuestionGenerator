@@ -98,12 +98,10 @@ if ($form->is_cancelled()) {
 
     ob_flush();
     flush();
-   // Get the selected question type from the form data
-   $questionType = $form_data->questiontype;
 
-   // Set the path to the Python script based on the selected question type
-   switch ($questionType) {
-    case 'mcq':
+   $questionType = $form_data->questiontype; // Get the selected question type from the form data
+    switch ($questionType) {  // Set the path to the Python script based on the selected question type
+        case 'mcq':
         $python_script = '/usr/local/var/www/moodle/local/questiongenerator/scripts/mcq.py';
         break;
     case 'truefalse':
@@ -115,21 +113,20 @@ if ($form->is_cancelled()) {
         break;
     }
 
-// Execute the Python script
-
-    $command = "python3.12 $python_script $filepath " . (int) $form_data->questionsnumber;
+    // Execute the Python script
+    $command = "python3 $python_script $filepath " . (int) $form_data->questionsnumber; // Change the command based on your python version
     exec($command, $output, $return_var);
     
-
-
     echo '<script>';
     echo 'document.getElementById("loadingScreen").style.display = "none";';
     echo '</script>';
 
     if ($return_var == 0) {
         $output_json = implode("\n", $output);  // Combine the output lines into a single string
-        $_SESSION['question_output'] = $output_json;  // Store the JSON string in the session
-        redirect(new moodle_url('/local/questiongenerator/view.php', array('courseid' => $course->id, 'id' => $cm->id, 'questiontype' => $questionType)));
+
+        $_SESSION['question_output'] = $output;
+        $url = new moodle_url('/local/questiongenerator/view.php', array('courseid' => $course->id, 'id' => $cm->id));
+        redirect($url);
     } else {
         var_dump('Error executing Python script!');
     }
