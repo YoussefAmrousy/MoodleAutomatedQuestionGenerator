@@ -32,9 +32,6 @@ session_start();
 unset($_SESSION['courseid']);
 unset($_SESSION['redirect']);
 unset($_SESSION['id']);
-$filepath = '/opt/homebrew/var/www/moodle/local/questiongenerator/lecture-files/' . $_SESSION['activityname'] . '.pdf';
-var_dump($filepath);
-unlink($filepath);
 unset($_SESSION['activityname']);
 unset($_SESSION['question_output']);
 

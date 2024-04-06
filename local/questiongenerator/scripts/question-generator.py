@@ -6,7 +6,7 @@ import fitz  # PyMuPDF
 import json
 # ... (your existing code for question and answer generation) ...
 
-def save_questions_to_xml(generated_question_answers, filepath):
+def save_questions_to_xml(generated_question_answers: any, filepath: str):
     root = ET.Element('quiz')
     for question, answer in generated_question_answers:
         question_element = ET.SubElement(root, 'question', type='shortanswer')
@@ -16,11 +16,10 @@ def save_questions_to_xml(generated_question_answers, filepath):
     tree = ET.ElementTree(root)
     tree.write(filepath + '.xml', encoding='utf-8')
 
-
-def extract_text_from_page(page):
+def extract_text_from_page(page: any):
     return page.get_text()
 
-def file_to_text(filepath):
+def file_to_text(filepath: str):
     text = ""
     with fitz.open(filepath) as pdf_document:
         num_pages = pdf_document.page_count
@@ -31,48 +30,45 @@ def file_to_text(filepath):
 
     return text
 
-def generate_questions(filepath, questionsNum):
-    input_text = file_to_text(filepath)
-
-    seed_value = hash(input_text) % (2**32 - 1)
-    torch.manual_seed(seed_value)
-
-    question_generator = pipeline("text2text-generation", model="t5-small")
-    qa_generator = pipeline("question-answering", model="bert-large-uncased-whole-word-masking-finetuned-squad")
-
-    generated_question_answers = []
-
-    # If the input text is short, generate questions directly
+def create_questions(input_text: str, questionsNum: int):
+    question_generator = pipeline("text2text-generation", model="voidful/bart-eqg-question-generator")
     if len(input_text) <= 512:
         questions = question_generator(input_text, max_length=30, num_return_sequences=questionsNum, num_beams=10)
-        for question in questions:
-            question_text = question['generated_text'].strip().capitalize()
-            qa_result = qa_generator(question=question_text, context=input_text)
-            answer = qa_result['answer'].replace('\n', '').capitalize()
-            generated_question_answers.append((question_text, answer))
+        created_questions = [question['generated_text'].strip().capitalize() for question in questions]
     else:
-        # Split the input text into smaller segments
         text_segments = [input_text[i:i+512] for i in range(0, len(input_text), 512)]
-
+        created_questions = []
         for segment in text_segments:
-            questions = question_generator(input_text, max_length=30, num_return_sequences=questionsNum, num_beams=10)
+            questions = question_generator(segment, max_length=30, num_return_sequences=questionsNum, num_beams=10)
             for question in questions:
-                question_text = question['generated_text'].strip().capitalize()
-                qa_result = qa_generator(question=question_text, context=segment)
-                answer = qa_result['answer'].replace('\n', '').capitalize()
-                generated_question_answers.append((question_text, answer))
+                created_questions.append(question['generated_text'].strip().capitalize())
 
-            # Break early if we've generated the desired number of questions
-            if len(generated_question_answers) >= questionsNum:
+            if len(created_questions) >= questionsNum:
                 break
+        
+    return created_questions
 
-    # Trim the list if it exceeds the desired number of questions
-    generated_question_answers = generated_question_answers[:questionsNum]
+def create_answer(input_text: str, question: str):
+    qa_generator = pipeline("question-answering", model="bert-large-uncased-whole-word-masking-finetuned-squad")
+    qa_result = qa_generator(question=question, context=input_text)
+    return qa_result['answer'].replace('\n', ' ').capitalize()
 
-    output_json = json.dumps(generated_question_answers)
+
+def generate_questions(filepath: str, questionsNum: int):
+    input_text: str = file_to_text(filepath)
+
+    questions = create_questions(input_text, questionsNum)
+    question_answers_pairs = []
+    for question in questions:
+        answer = create_answer(input_text, question)
+        question_answers_pairs.append((question, answer))
+
+    question_answers_pairs = question_answers_pairs[:questionsNum]
+
+    output_json = json.dumps(question_answers_pairs)
     print(output_json)
     
-    return generated_question_answers
+    return question_answers_pairs
 
 
 if __name__ == "__main__":
@@ -83,9 +79,7 @@ if __name__ == "__main__":
     file_path = sys.argv[1]
     questionsNum = int(sys.argv[2])
 
-    # Call the generate_questions function and capture the returned value
     generated_question_answers = generate_questions(file_path, questionsNum)
 
-    # Use the captured value in the save_questions_to_xml function call
-    save_questions_to_xml(generated_question_answers, "generated_questions")
+    save_questions_to_xml(generated_question_answers, "generated_questions") # To save in the moodle question bank
 
