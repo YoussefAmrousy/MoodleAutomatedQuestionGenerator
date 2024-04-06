@@ -6,14 +6,27 @@ import fitz
 import json
 
 def save_questions_to_xml(generated_question_answers, filepath):
+    
     root = ET.Element('quiz')
-    for question, answer in generated_question_answers:
-        question_element = ET.SubElement(root, 'question', type='truefalse')
-        ET.SubElement(question_element, 'name').text = question
-        ET.SubElement(question_element, 'questiontext', format='html').text = question
-        ET.SubElement(question_element, 'answer', format='html').text = str(answer).lower()
-    tree = ET.ElementTree(root)
-    tree.write(filepath + '.xml', encoding='utf-8')
+    
+    for question, answer, difficulty in generated_question_answers:        
+        question_element = ET.SubElement(root, 'question', type='shortanswer')
+        
+        name_element = ET.SubElement(question_element, 'name')
+        ET.SubElement(name_element, 'text').text = question
+        
+        questiontext_element = ET.SubElement(question_element, 'questiontext', format='html')
+        ET.SubElement(questiontext_element, 'text').text = f"<![CDATA[{question}]]>"
+        
+        answer_element = ET.SubElement(question_element, 'answer', fraction="100", format='moodle_auto_format')
+        ET.SubElement(answer_element, 'text').text = answer
+        
+        ET.SubElement(question_element, 'generalfeedback', format='html').text = "<![CDATA[]]>"
+        ET.SubElement(question_element, 'defaultgrade').text = "1.0000000"
+        ET.SubElement(question_element, 'penalty').text = "0.3333333"
+        ET.SubElement(question_element, 'hidden').text = "0"
+        ET.SubElement(question_element, 'usecase').text = "0"
+
 
 
 def extract_text_from_page(page):
