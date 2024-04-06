@@ -3,7 +3,6 @@ import torch
 import xml.etree.ElementTree as ET
 import sys
 import fitz 
-from xml.dom import minidom
 import json
 
 def save_questions_to_xml(generated_question_answers, filepath):
