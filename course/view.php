@@ -34,6 +34,7 @@ unset($_SESSION['redirect']);
 unset($_SESSION['id']);
 unset($_SESSION['activityname']);
 unset($_SESSION['question_output']);
+unset($_SESSION['questionType']);
 
 $id = optional_param('id', 0, PARAM_INT);
 $name = optional_param('name', '', PARAM_TEXT);
