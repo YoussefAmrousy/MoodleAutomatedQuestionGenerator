@@ -1,6 +1,6 @@
 <?php
-require_once('../../config.php');
-require_once('lib/forms/generate_question.php');
+require_once ('../../config.php');
+require_once ('lib/forms/generate_question.php');
 
 session_start();
 
@@ -70,7 +70,7 @@ if (count($files) < 1) {
     $l1 = $contenthash[0] . $contenthash[1];
     $l2 = $contenthash[2] . $contenthash[3];
     $filedir = $CFG->dataroot . '/filedir/' . $l1 . '/' . $l2 . '/' . $contenthash;
-    
+
     // Check if the file exists in the filedir
     if (file_exists($filedir)) {
         $filepath = $filedir; // Use this file path for the Python script
@@ -98,35 +98,38 @@ if ($form->is_cancelled()) {
 
     ob_flush();
     flush();
+    // Get the selected question type from the form data
+    $questionType = $form_data->questiontype;
 
-   $questionType = $form_data->questiontype; // Get the selected question type from the form data
-    switch ($questionType) {  // Set the path to the Python script based on the selected question type
+    // Set the path based on the location of the script on your computer
+    switch ($questionType) {
         case 'mcq':
-        $python_script = '/usr/local/var/www/moodle/local/questiongenerator/scripts/mcq.py';
-        break;
-    case 'truefalse':
-        $python_script = '/usr/local/var/www/moodle/local/questiongenerator/scripts/true_false.py';
-        break;
-    case 'shortanswer':
+            $python_script = '/usr/local/var/www/moodle/local/questiongenerator/scripts/mcq.py';
+            break;
+        case 'truefalse':
+            $python_script = '/opt/homebrew/var/www/moodle/local/questiongenerator/scripts/true-false.py';
+            $command = "python3 $python_script $filepath " . (int) $form_data->questionsnumber; // Set python command based on your python version
+            break;
+        case 'shortanswer':
+            $python_script = '/opt/homebrew/var/www/moodle/local/questiongenerator/scripts/short-answer.py';
+            $command = "python3 $python_script $filepath " . (int) $form_data->questionsnumber . " " . $form_data->difficulty; // Set python command based on your python version
+            break;
         default:
-        $python_script = '/usr/local/var/www/moodle/local/questiongenerator/scripts/question-generator.py';
-        break;
+            $python_script = '/opt/homebrew/var/www/moodle/local/questiongenerator/scripts/short-answer.py';
+            break;
     }
 
     // Execute the Python script
-    $command = "python3 $python_script $filepath " . (int) $form_data->questionsnumber; // Change the command based on your python version
     exec($command, $output, $return_var);
-    
+
     echo '<script>';
     echo 'document.getElementById("loadingScreen").style.display = "none";';
     echo '</script>';
 
     if ($return_var == 0) {
         $output_json = implode("\n", $output);  // Combine the output lines into a single string
-
-        $_SESSION['question_output'] = $output;
-        $url = new moodle_url('/local/questiongenerator/view.php', array('courseid' => $course->id, 'id' => $cm->id));
-        redirect($url);
+        $_SESSION['question_output'] = $output_json;  // Store the JSON string in the session
+        redirect(new moodle_url('/local/questiongenerator/view.php', array('courseid' => $course->id, 'id' => $cm->id, 'questiontype' => $questionType)));
     } else {
         var_dump('Error executing Python script!');
     }
