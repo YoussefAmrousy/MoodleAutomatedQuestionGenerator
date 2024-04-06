@@ -2,10 +2,8 @@ from transformers import pipeline
 import torch
 import xml.etree.ElementTree as ET
 import sys
-import fitz  # PyMuPDF
-from xml.dom import minidom
+import fitz 
 import json
-
 
 def save_questions_to_xml(generated_question_answers, filepath):
     root = ET.Element('quiz')
