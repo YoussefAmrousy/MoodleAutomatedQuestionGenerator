@@ -9,30 +9,40 @@ genai.configure(api_key='AIzaSyBPDvekJS5kzrsriJDktZCvAy-50ui5tuU')
 model = genai.GenerativeModel('gemini-pro')
 generated_question_answers = []
 
-def save_questions_to_xml(generated_question_answers, filepath):
+# def save_questions_to_xml(generated_question_answers, filepath):
     
-    root = ET.Element('quiz')
+#     root = ET.Element('quiz')
     
-    for question, answer, difficulty in generated_question_answers:        
-        question_element = ET.SubElement(root, 'question', type='shortanswer')
+#     for question, answer, difficulty in generated_question_answers:        
+#         question_element = ET.SubElement(root, 'question', type='shortanswer')
         
-        name_element = ET.SubElement(question_element, 'name')
-        ET.SubElement(name_element, 'text').text = question
+#         name_element = ET.SubElement(question_element, 'name')
+#         ET.SubElement(name_element, 'text').text = question
         
-        questiontext_element = ET.SubElement(question_element, 'questiontext', format='html')
-        ET.SubElement(questiontext_element, 'text').text = f"<![CDATA[{question}]]>"
+#         questiontext_element = ET.SubElement(question_element, 'questiontext', format='html')
+#         ET.SubElement(questiontext_element, 'text').text = f"<![CDATA[{question}]]>"
         
-        answer_element = ET.SubElement(question_element, 'answer', fraction="100", format='moodle_auto_format')
-        ET.SubElement(answer_element, 'text').text = answer
+#         answer_element = ET.SubElement(question_element, 'answer', fraction="100", format='moodle_auto_format')
+#         ET.SubElement(answer_element, 'text').text = answer
         
-        ET.SubElement(question_element, 'generalfeedback', format='html').text = "<![CDATA[]]>"
-        ET.SubElement(question_element, 'defaultgrade').text = "1.0000000"
-        ET.SubElement(question_element, 'penalty').text = "0.3333333"
-        ET.SubElement(question_element, 'hidden').text = "0"
-        ET.SubElement(question_element, 'usecase').text = "0"
+#         ET.SubElement(question_element, 'generalfeedback', format='html').text = "<![CDATA[]]>"
+#         ET.SubElement(question_element, 'defaultgrade').text = "1.0000000"
+#         ET.SubElement(question_element, 'penalty').text = "0.3333333"
+#         ET.SubElement(question_element, 'hidden').text = "0"
+#         ET.SubElement(question_element, 'usecase').text = "0"
+    
+#     tree = ET.ElementTree(root)
+#     tree.write(filepath + '.xml', encoding='utf-8', xml_declaration=True)
 
-    tree = ET.ElementTree(root)
-    tree.write(filepath + '.xml', encoding='utf-8', xml_declaration=True)
+def save_questions_to_json(generated_question_answers, filepath):
+    output_data = {
+        "questions": [
+            {"question": q, "answer": a, "difficulty": d}
+            for q, a, d in generated_question_answers
+        ]
+    }
+    with open(filepath + '.json', 'w') as f:
+        json.dump(output_data, f, indent=4)
 
 def extract_text_from_page(page: any):
     return page.get_text()
@@ -102,5 +112,6 @@ if __name__ == "__main__":
 
     generated_question_answers = generate_questions(file_path, questionsNum, difficulty)
 
-    save_questions_to_xml(generated_question_answers, "generated_questions") # To save in the moodle question bank
+    # save_questions_to_xml(generated_question_answers, "generated_questions") # To save in the moodle question bank
+    save_questions_to_json(generated_question_answers, "generated_questions")  # JSON output
 

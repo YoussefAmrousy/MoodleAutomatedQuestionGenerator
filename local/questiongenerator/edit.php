@@ -1,8 +1,35 @@
 <?php
-require_once ('../../config.php');
-require_once ('lib/forms/generate_question.php');
+require_once('../../config.php');
+require_once('lib/forms/generate_question.php');
 
 session_start();
+
+function import_questions_from_json($jsonPath, $courseid) {
+    global $DB, $USER;
+    $jsonContent = file_get_contents($jsonPath);
+    $questions = json_decode($jsonContent, true);
+    $context = context_course::instance($courseid);
+
+    foreach ($questions['questions'] as $q) {
+        $question = new stdClass();
+        $question->qtype = 'shortanswer';
+        $question->name = substr($q['question'], 0, 50);
+        $question->questiontext = $q['question'];
+        $question->generalfeedback = '';
+        $question->penalty = 0.1;
+        $question->hidden = 0;
+        $question->timecreated = time();
+        $question->timemodified = time();
+        $question->createdby = $USER->id;
+        $question->modifiedby = $USER->id;
+        $question->category = 1;  // Ensure this ID matches your question category ID
+        $question->answer = array($q['answer'], '100');
+        $question->usecase = 0;
+
+        // Insert the question into the database
+        question_bank::get_qtype($question->qtype)->save_question($question, new stdClass());
+    }
+}
 
 $courseid = optional_param('courseid', 0, PARAM_INT);
 $id = optional_param('id', 0, PARAM_INT); // Activity Id
@@ -70,7 +97,7 @@ if (count($files) < 1) {
     $l1 = $contenthash[0] . $contenthash[1];
     $l2 = $contenthash[2] . $contenthash[3];
     $filedir = $CFG->dataroot . '/filedir/' . $l1 . '/' . $l2 . '/' . $contenthash;
-
+    
     // Check if the file exists in the filedir
     if (file_exists($filedir)) {
         $filepath = $filedir; // Use this file path for the Python script
@@ -98,40 +125,52 @@ if ($form->is_cancelled()) {
 
     ob_flush();
     flush();
-    // Get the selected question type from the form data
-    $questionType = $form_data->questiontype;
+   // Get the selected question type from the form data
+   $questionType = $form_data->questiontype;
 
-    // Set the path based on the location of the script on your computer
-    switch ($questionType) {
-        case 'mcq':
-            $python_script = '/usr/local/var/www/moodle/local/questiongenerator/scripts/mcq.py';
-            break;
-        case 'truefalse':
-            $python_script = '/opt/homebrew/var/www/moodle/local/questiongenerator/scripts/true-false.py';
-            $command = "python3 $python_script $filepath " . (int) $form_data->questionsnumber; // Set python command based on your python version
-            break;
-        case 'shortanswer':
-            $python_script = '/opt/homebrew/var/www/moodle/local/questiongenerator/scripts/short-answer.py';
-            $command = "python3 $python_script $filepath " . (int) $form_data->questionsnumber . " " . $form_data->difficulty; // Set python command based on your python version
-            break;
+   // Set the path to the Python script based on the selected question type
+   switch ($questionType) {
+    case 'mcq':
+        $python_script = '/usr/local/var/www/moodle/local/questiongenerator/scripts/mcq.py';
+        break;
+    case 'truefalse':
+        $python_script = '/usr/local/var/www/moodle/local/questiongenerator/scripts/true_false.py';
+        break;
+    case 'shortanswer':
         default:
-            $python_script = '/opt/homebrew/var/www/moodle/local/questiongenerator/scripts/short-answer.py';
-            break;
+        $python_script = '/usr/local/var/www/moodle/local/questiongenerator/scripts/question-generator.py';
+        break;
     }
 
-    // Execute the Python script
+// Execute the Python script
+
+    $command = "python3.12 $python_script $filepath " . (int) $form_data->questionsnumber;
     exec($command, $output, $return_var);
+    
+
 
     echo '<script>';
     echo 'document.getElementById("loadingScreen").style.display = "none";';
     echo '</script>';
 
+    // if ($return_var == 0) {
+    //     $output_json = implode("\n", $output);  // Combine the output lines into a single string
+    //     $_SESSION['question_output'] = $output_json;  // Store the JSON string in the session
+    //     redirect(new moodle_url('/local/questiongenerator/view.php', array('courseid' => $course->id, 'id' => $cm->id, 'questiontype' => $questionType)));
+    // } else {
+    //     var_dump('Error executing Python script!');
+    // }
     if ($return_var == 0) {
-        $output_json = implode("\n", $output);  // Combine the output lines into a single string
-        $_SESSION['question_output'] = $output_json;  // Store the JSON string in the session
-        redirect(new moodle_url('/local/questiongenerator/view.php', array('courseid' => $course->id, 'id' => $cm->id, 'questiontype' => $questionType)));
+        $json_output = implode("\n", $output);  // Assembles the printed JSON into a single string
+        $questions_data = json_decode($json_output, true);  // Decodes the JSON string into an associative array
+
+        foreach ($questions_data['questions'] as $question_info) {
+            // Assume import_question_to_moodle is defined to insert each question into Moodle
+            import_question_to_moodle($question_info, $courseid);
+        }
+        echo "Questions have been successfully imported into the Moodle question bank.";
     } else {
-        var_dump('Error executing Python script!');
+        echo "Failed to execute Python script";
     }
 }
 

@@ -1,0 +1,19 @@
+{
+    "questions": [
+        {
+            "question": "What is a model ?",
+            "answer": "A complete, basic, and simplified description of software architecture",
+            "difficulty": "easy"
+        },
+        {
+            "question": "What 's a view ?",
+            "answer": "A representation of an entire system from the perspective of a related set of concerns",
+            "difficulty": "easy"
+        },
+        {
+            "question": "What 's a model ?",
+            "answer": "A complete, basic, and simplified description of software architecture",
+            "difficulty": "easy"
+        }
+    ]
+}
