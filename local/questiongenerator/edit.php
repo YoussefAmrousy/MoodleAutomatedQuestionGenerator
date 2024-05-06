@@ -5,7 +5,7 @@ require_once ('lib/forms/generate_question.php');
 session_start();
 
 $courseid = optional_param('courseid', 0, PARAM_INT);
-$id = optional_param('id', 0, PARAM_INT); // Activity Id
+$id = optional_param('id', 0, PARAM_INT);
 $redirect = optional_param('redirect', 0, PARAM_BOOL);
 $questionType = optional_param('questiontype', '', PARAM_TEXT);
 
@@ -86,7 +86,6 @@ $form = new generate_question();
 if ($form->is_cancelled()) {
     redirect($courseurl);
 } elseif ($form_data = $form->get_data()) {
-    // Create a temporary copy of the PDF file for processing
     $temp_file = tempnam(sys_get_temp_dir(), 'pdf_');
     copy($filepath, $temp_file);
 
@@ -98,28 +97,28 @@ if ($form->is_cancelled()) {
 
     ob_flush();
     flush();
-    // Get the selected question type from the form data
+
     $questionType = $form_data->questiontype;
 
     // Set the path based on the location of the script on your computer
+    // Set python command based on your python version
     switch ($questionType) {
         case 'mcq':
             $python_script = '/usr/local/var/www/moodle/local/questiongenerator/scripts/mcq.py';
             break;
         case 'truefalse':
             $python_script = '/opt/homebrew/var/www/moodle/local/questiongenerator/scripts/true-false.py';
-            $command = "python3 $python_script $filepath " . (int) $form_data->questionsnumber; // Set python command based on your python version
+            $command = "python3 $python_script $filepath " . (int) $form_data->questionsnumber;
             break;
         case 'shortanswer':
             $python_script = '/opt/homebrew/var/www/moodle/local/questiongenerator/scripts/short-answer.py';
-            $command = "python3 $python_script $filepath " . (int) $form_data->questionsnumber . " " . $form_data->difficulty; // Set python command based on your python version
+            $command = "python3 $python_script $filepath " . (int) $form_data->questionsnumber . " " . $form_data->difficulty;
             break;
         default:
             $python_script = '/opt/homebrew/var/www/moodle/local/questiongenerator/scripts/short-answer.py';
             break;
     }
 
-    // Execute the Python script
     exec($command, $output, $return_var);
 
     echo '<script>';
@@ -127,14 +126,13 @@ if ($form->is_cancelled()) {
     echo '</script>';
 
     if ($return_var == 0) {
-        $output_json = implode("\n", $output);  // Combine the output lines into a single string
-        $_SESSION['question_output'] = $output_json;  // Store the JSON string in the session
+        $output_json = implode("\n", $output);
+        $_SESSION['question_output'] = $output_json;
         redirect(new moodle_url('/local/questiongenerator/view.php', array('courseid' => $course->id, 'id' => $cm->id, 'questiontype' => $questionType)));
     } else {
-        var_dump('Error executing Python script!');
+        var_dump('Error generating questions, please try again!');
     }
 }
-
 
 $form->display();
 

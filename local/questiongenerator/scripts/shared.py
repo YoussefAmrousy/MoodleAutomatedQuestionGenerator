@@ -1,9 +1,6 @@
 import fitz
 import xml.etree.ElementTree as ET
-import google.generativeai as genai
-
-genai.configure(api_key='AIzaSyBPDvekJS5kzrsriJDktZCvAy-50ui5tuU')
-model = genai.GenerativeModel('gemini-pro')
+from openai import OpenAI
 
 
 def extract_text_from_page(page: any):
@@ -54,18 +51,45 @@ def save_questions_to_xml(generated_question_answers, filepath):
     tree.write(filepath + '.xml', encoding='utf-8', xml_declaration=True)
 
 
-def check_difficulty(question: str, answer: str, difficulty: str):
-    message = question + ", " + answer + ", Is this question " + str(
-        difficulty
-    ) + ", ANSWER WITH Yes or NO ONLY WITH NO WORDS BEFORE OR AFTER?"
-    response = model.generate_content(message)
-    if response.text == "Yes":
-        return True
-    return False
+def create_shortanswer_question(input_text, difficulty: str):
+    message = input_text + ", Create a " + difficulty + " short answer question without its answer and I want this quesiton for a quiz and ignnore irrelevant information. I want you to return only the question not any other text around the question because I will add it into a database automatically."
+    question = generate_response(message)
+    response_parts = question.split(":", 1)
+    if len(response_parts) > 1:
+        question = response_parts[1].strip()
+    else:
+        response_parts = question.split("\n", 1)
+        if len(response_parts) > 1:
+            question = response_parts[1].strip()
+    return question
 
-def is_question_relevant(question: str, text):
-    message = question + ", " + text + ", Is this question relevant and can be used in an exam?, ANSWER WITH Yes or NO ONLY WITH NO WORDS BEFORE OR AFTER?"
-    response = model.generate_content(message)
-    if response.text == "Yes":
-        return True
-    return False
+
+def create_true_false_question(input_text, difficulty: str):
+    message = input_text + ", Create a " + difficulty + " question"
+    system_message = "You are an experienced teacher that generates quiz based on the text provided, Respond with a true/false question and answer based on the text provided. provide your answer in a json format like this {'Question': The question, 'Answer': The answer}."
+    question = generate_response(message, system_message)
+
+    return question
+
+
+def generate_response(message):
+    client = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
+
+    completion = client.chat.completions.create(
+        model="TheBloke/Llama-2-7B-Chat-GGUF",
+        messages=[
+            {
+                "role":
+                "system",
+                "content":
+                "You are an experienced teacher and you are creating a quiz for your students. You want to create a question based on the text you provided. The question should be relevant to the text and should depend on the difficulty level you specified. The response should consist of the question only"
+            },
+            {
+                "role": "user",
+                "content": message
+            },
+        ],
+    )
+
+    response = completion.choices[0].message.content
+    return response
