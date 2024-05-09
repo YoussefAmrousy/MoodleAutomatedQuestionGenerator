@@ -32,3 +32,7 @@ $string['questiontype'] = 'Question type';
 $string['questiontype_help'] = 'Select the type of questions you want to generate.';
 $string['generatebutton'] = 'Generate Questions';
 $string['invalidfiletype'] = 'Invalid File Type, You can only generate questions from PDF files.';
+$string['difficulty'] = 'Difficulty';
+$string['difficulty_help'] = 'Select the difficulty of the questions you want to generate.';
+$string['savebutton'] = 'Save Questions';
+$string['reset'] = 'Reset';
