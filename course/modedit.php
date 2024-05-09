@@ -192,7 +192,7 @@ if ($mform->is_cancelled()) {
         if (!empty($fromform->showgradingmanagement)) {
             $url = $fromform->gradingman->get_management_url($url);
         }
-    } else if (isset($fromform->generatequestions) && isset($fromform->submitbutton2)) {
+    } else if (isset($fromform->generatequestions) && isset($fromform->submitbutton2)) { // Checks if file is pdf
         $course = get_course($fromform->course); // Get Course
         $cm = get_coursemodule_from_id('resource', $id, $course->id); // Get mod
         $context = context_module::instance($fromform->coursemodule); // mod Context
