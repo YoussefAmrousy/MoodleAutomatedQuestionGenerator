@@ -5,14 +5,13 @@ require_once ('lib/forms/generate_question.php');
 session_start();
 
 $courseid = optional_param('courseid', 0, PARAM_INT);
-$id = optional_param('id', 0, PARAM_INT);
+$activity_id = optional_param('id', 0, PARAM_INT);
 $redirect = optional_param('redirect', 0, PARAM_BOOL);
-$questionType = optional_param('questiontype', '', PARAM_TEXT);
 
-if ($courseid == 0 && isset($_SESSION['courseid']) && $redirect == 0 && isset($_SESSION['redirect']) && $id == 0 && isset($_SESSION['id'])) {
+if ($courseid == 0 && isset($_SESSION['courseid']) && $redirect == 0 && isset($_SESSION['redirect']) && $activity_id == 0 && isset($_SESSION['id'])) {
     $courseid = $_SESSION['courseid'];
     $redirect = 1;
-    $id = $_SESSION['id'];
+    $activity_id = $_SESSION['id'];
 }
 
 if ($courseid) {
@@ -23,10 +22,9 @@ if (!$course) {
     print_error('invalidcourse', 'error');
 }
 
-require_login($course->id, false);
-$PAGE->set_pagelayout('course');
-$PAGE->set_context(context_course::instance($course->id));
-$cm = get_coursemodule_from_id('resource', $id, $course->id); // Get Activity Module
+// $PAGE->set_pagelayout('course');
+// $PAGE->set_context(context_course::instance($course->id));
+$cm = get_coursemodule_from_id('resource', $activity_id, $course->id); // Get Activity Module
 
 if (!$cm && $cm->course != $course->id && !$redirect) {
     print_error('Invalid Activity Id/Course Id', 'error');
@@ -37,7 +35,7 @@ require_login($course, false, $cm);
 if (!$_SESSION['courseid'] && !$_SESSION['id']) {
     $_SESSION['courseid'] = $course->id;
     $_SESSION['redirect'] = 1;
-    $_SESSION['id'] = $id;
+    $_SESSION['id'] = $activity_id;
 }
 
 $activityname = $cm->name;
@@ -79,13 +77,9 @@ if (count($files) < 1) {
     }
 }
 
-$courseurl = new moodle_url('/local/questiongenerator/view.php', array('courseid' => $course->id, 'id' => $cm->id, 'questiontype' => $questionType));
-
 $form = new generate_question();
 
-if ($form->is_cancelled()) {
-    redirect($courseurl);
-} elseif ($form_data = $form->get_data()) {
+if ($form_data = $form->get_data()) {
     $temp_file = tempnam(sys_get_temp_dir(), 'pdf_');
     copy($filepath, $temp_file);
 
@@ -98,26 +92,12 @@ if ($form->is_cancelled()) {
     ob_flush();
     flush();
 
-    $questionType = $form_data->questiontype;
+    $question_type = $form_data->questiontype;
 
-    // Set the path based on the location of the script on your computer
-    // Set python command based on your python version
-    switch ($questionType) {
-        case 'mcq':
-            $python_script = '/usr/local/var/www/moodle/local/questiongenerator/scripts/mcq.py';
-            break;
-        case 'truefalse':
-            $python_script = '/opt/homebrew/var/www/moodle/local/questiongenerator/scripts/true-false.py';
-            $command = "python3 $python_script $filepath " . (int) $form_data->questionsnumber;
-            break;
-        case 'shortanswer':
-            $python_script = '/opt/homebrew/var/www/moodle/local/questiongenerator/scripts/short-answer.py';
-            $command = "python3 $python_script $filepath " . (int) $form_data->questionsnumber . " " . $form_data->difficulty;
-            break;
-        default:
-            $python_script = '/opt/homebrew/var/www/moodle/local/questiongenerator/scripts/short-answer.py';
-            break;
-    }
+    // Set python script path based on the local path
+    // Set python version based on your local python version to run the script
+    $python_script = '/opt/homebrew/var/www/moodle/local/questiongenerator/scripts/generate_questions.py';
+    $command = "python3 $python_script $filepath $question_type " . (int) $form_data->questionsnumber . " " . $form_data->difficulty;
 
     exec($command, $output, $return_var);
 
@@ -126,9 +106,8 @@ if ($form->is_cancelled()) {
     echo '</script>';
 
     if ($return_var == 0) {
-        $output_json = implode("\n", $output);
-        $_SESSION['question_output'] = $output_json;
-        redirect(new moodle_url('/local/questiongenerator/view.php', array('courseid' => $course->id, 'id' => $cm->id, 'questiontype' => $questionType)));
+        $_SESSION['question_output'] = $output;
+        redirect(new moodle_url('/local/questiongenerator/view.php', array('courseid' => $course->id, 'id' => $cm->id)));
     } else {
         var_dump('Error generating questions, please try again!');
     }

@@ -3,7 +3,6 @@ require_once ('../../config.php');
 
 $courseid = optional_param('courseid', 0, PARAM_INT);
 $id = optional_param('id', 0, PARAM_INT);
-$questionType = optional_param('questiontype', '', PARAM_TEXT);
 
 $course = get_course($courseid);
 $cm = get_coursemodule_from_id('resource', $id, $course->id);
@@ -28,9 +27,10 @@ session_start();
 
 echo $OUTPUT->header();
 
-
 $question_output = isset($_SESSION['question_output']) ? $_SESSION['question_output'] : '[]';
-$question_pairs = json_decode($question_output, true);
+$json_string = implode('', $question_output);
+$json_string = rtrim($json_string, ',');
+$questions_array = json_decode($json_string, true);
 
 $PAGE->set_title('Preview Questions');
 $PAGE->set_heading('Preview Questions');
@@ -42,24 +42,28 @@ $table->head = array('Index', 'Question', 'Answer', 'Difficulty', 'Action');
 
 $counter = 0;
 
-if ($questionType == "truefalse") {
-    foreach ($question_pairs as $pair) {
-        $question = $pair[0];
-        $answer = $pair[1] ? 'True' : 'False';
-        $difficulty = $pair[2];
-        $index = ++$counter;
-        $checkbox = html_writer::checkbox("selected_questions[]", $index, true);
-        $table->data[] = array($index, $question, $answer, $difficulty, $checkbox);
+foreach ($questions_array as $pair) {
+    $question_type = $pair['type'];
+    $index = ++$counter;
+    $question = $pair['question'];
+    $difficulty = $pair['difficulty'];
+
+    if ($question_type == "Multiple Choice") {
+        $correct_answer = $pair['correct_answer'];
+        $answer = "<ol type='A'>";
+        foreach ($pair['options'] as $ans) {
+            if ($ans == $correct_answer) {
+                $answer .= "<li><strong>$ans</strong></li>";
+                continue;
+            }
+            $answer .= "<li>$ans</li>";
+        }
+        $answer .= "</ol>";
+    } else {
+        $answer = "<strong>" . $pair['answer'] . "</strong>";
     }
-} else {
-    foreach ($question_pairs as $pair) {
-        $question = $pair[0];
-        $answer = $pair[1];
-        $difficulty = $pair[2];
-        $index = ++$counter;
-        $checkbox = html_writer::checkbox("selected_questions[]", $index, true);
-        $table->data[] = array($index, $question, $answer, $difficulty, $checkbox);
-    }
+    $checkbox = html_writer::checkbox("selected_questions[]", $index, true);
+    $table->data[] = array($index, $question, $answer, $difficulty, $checkbox);
 }
 
 echo html_writer::table($table);
