@@ -25,6 +25,10 @@ require_login($course, false);
 
 session_start();
 
+// $gift_filename = trim($output);
+// $gift_file_url = "moodle/$gift_filename";
+
+
 echo $OUTPUT->header();
 
 $question_output = isset($_SESSION['question_output']) ? $_SESSION['question_output'] : '[]';
@@ -67,5 +71,9 @@ foreach ($questions_array as $pair) {
 }
 
 echo html_writer::table($table);
-
+// if (file_exists($gift_file_url)) {
+//     echo "<div><a href='{$gift_file_url}' download class='btn btn-primary'>Download GIFT File</a></div>";
+// } else {
+//     echo "<p>The GIFT file could not be found.</p>";
+// }
 echo $OUTPUT->footer();
