@@ -28,10 +28,10 @@ use core_course\external\course_summary_exporter;
 use core_courseformat\base as course_format;
 use core\output\local\action_menu\subpanel as action_menu_subpanel;
 
-require_once($CFG->libdir . '/completionlib.php');
-require_once($CFG->libdir . '/filelib.php');
-require_once($CFG->libdir . '/datalib.php');
-require_once($CFG->dirroot . '/course/format/lib.php');
+require_once ($CFG->libdir . '/completionlib.php');
+require_once ($CFG->libdir . '/filelib.php');
+require_once ($CFG->libdir . '/datalib.php');
+require_once ($CFG->dirroot . '/course/format/lib.php');
 
 define('COURSE_MAX_LOGS_PER_PAGE', 1000);       // Records.
 define('COURSE_MAX_RECENT_PERIOD', 172800);     // Two days, in seconds.
@@ -705,7 +705,7 @@ function set_coursemodule_groupmode($id, $groupmode)
         \course_modinfo::purge_course_module_cache($cm->course, $cm->id);
         rebuild_course_cache($cm->course, false, true);
     }
-    return($cm->groupmode != $groupmode);
+    return ($cm->groupmode != $groupmode);
 }
 
 function set_coursemodule_idnumber($id, $idnumber)
@@ -717,7 +717,7 @@ function set_coursemodule_idnumber($id, $idnumber)
         \course_modinfo::purge_course_module_cache($cm->course, $cm->id);
         rebuild_course_cache($cm->course, false, true);
     }
-    return($cm->idnumber != $idnumber);
+    return ($cm->idnumber != $idnumber);
 }
 
 /**
@@ -735,7 +735,7 @@ function set_downloadcontent(int $id, bool $downloadcontent): bool
         $DB->set_field('course_modules', 'downloadcontent', $downloadcontent, ['id' => $cm->id]);
         rebuild_course_cache($cm->course, true);
     }
-    return($cm->downloadcontent != $downloadcontent);
+    return ($cm->downloadcontent != $downloadcontent);
 }
 
 /**
@@ -761,8 +761,8 @@ function set_downloadcontent(int $id, bool $downloadcontent): bool
 function set_coursemodule_visible($id, $visible, $visibleoncoursepage = 1, bool $rebuildcache = true)
 {
     global $DB, $CFG;
-    require_once($CFG->libdir . '/gradelib.php');
-    require_once($CFG->dirroot . '/calendar/lib.php');
+    require_once ($CFG->libdir . '/gradelib.php');
+    require_once ($CFG->dirroot . '/calendar/lib.php');
 
     if (!$cm = $DB->get_record('course_modules', array('id' => $id))) {
         return false;
@@ -837,7 +837,7 @@ function set_coursemodule_visible($id, $visible, $visibleoncoursepage = 1, bool 
 function set_coursemodule_name($id, $name)
 {
     global $CFG, $DB;
-    require_once($CFG->libdir . '/gradelib.php');
+    require_once ($CFG->libdir . '/gradelib.php');
 
     $cm = get_coursemodule_from_id('', $id, 0, false, MUST_EXIST);
 
@@ -905,10 +905,10 @@ function course_delete_module($cmid, $async = false)
 
     global $CFG, $DB;
 
-    require_once($CFG->libdir . '/gradelib.php');
-    require_once($CFG->libdir . '/questionlib.php');
-    require_once($CFG->dirroot . '/blog/lib.php');
-    require_once($CFG->dirroot . '/calendar/lib.php');
+    require_once ($CFG->libdir . '/gradelib.php');
+    require_once ($CFG->libdir . '/questionlib.php');
+    require_once ($CFG->dirroot . '/blog/lib.php');
+    require_once ($CFG->dirroot . '/calendar/lib.php');
 
     // Get the course module.
     if (!$cm = $DB->get_record('course_modules', array('id' => $cmid))) {
@@ -926,7 +926,7 @@ function course_delete_module($cmid, $async = false)
 
     // Include the file required to call the delete_instance function for this module.
     if (file_exists($modlib)) {
-        require_once($modlib);
+        require_once ($modlib);
     } else {
         throw new moodle_exception(
             'cannotdeletemodulemissinglib',
@@ -1074,10 +1074,10 @@ function course_delete_module($cmid, $async = false)
 function course_module_flag_for_async_deletion($cmid)
 {
     global $CFG, $DB, $USER;
-    require_once($CFG->libdir . '/gradelib.php');
-    require_once($CFG->libdir . '/questionlib.php');
-    require_once($CFG->dirroot . '/blog/lib.php');
-    require_once($CFG->dirroot . '/calendar/lib.php');
+    require_once ($CFG->libdir . '/gradelib.php');
+    require_once ($CFG->libdir . '/questionlib.php');
+    require_once ($CFG->dirroot . '/blog/lib.php');
+    require_once ($CFG->dirroot . '/calendar/lib.php');
 
     // Get the course module.
     if (!$cm = $DB->get_record('course_modules', array('id' => $cmid))) {
@@ -1095,7 +1095,7 @@ function course_module_flag_for_async_deletion($cmid)
 
     // Include the file required to call the delete_instance function for this module.
     if (file_exists($modlib)) {
-        require_once($modlib);
+        require_once ($modlib);
     } else {
         throw new \moodle_exception(
             'cannotdeletemodulemissinglib',
@@ -1949,6 +1949,17 @@ function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null)
         );
     }
 
+    // Generate 
+    $isfiletypepdf = is_file_type_pdf($mod->id) == true;
+    if ($isfiletypepdf) {
+        $actions['generatequestions'] = new action_menu_link_secondary(
+            new moodle_url('/local/questiongenerator/edit.php', array('courseid' => $mod->course, 'id' => $mod->id, 'redirect' => 1)),
+            new pix_icon('e/help', '', 'moodle', array('class' => 'iconsmall')),
+            $str->generatequestions,
+            array('class' => 'editing_assign', 'data-action' => 'assignroles', 'data-sectionreturn' => $sr)
+        );
+    }
+
     // Delete.
     if ($hasmanageactivities) {
         $actions['delete'] = new action_menu_link_secondary(
@@ -1961,15 +1972,6 @@ function course_get_cm_edit_actions(cm_info $mod, $indent = -1, $sr = null)
                 'data-sectionreturn' => $sr,
                 'data-id' => $mod->id,
             ]
-        );
-    }
-
-    if (is_file_type_pdf($mod->id) == true) {
-        $actions['generatequestions'] = new action_menu_link_secondary(
-            new moodle_url('/local/questiongenerator/edit.php', array('courseid' => $mod->course, 'id' => $mod->id, 'redirect' => 1)),
-            new pix_icon('e/help', '', 'moodle', array('class' => 'iconsmall')),
-            $str->generatequestions,
-            array('class' => 'editing_assign', 'data-action' => 'assignroles', 'data-sectionreturn' => $sr)
         );
     }
 
@@ -2634,7 +2636,7 @@ function update_course($data, $editoroptions = NULL)
         }
 
         // Update communication room membership of enrolled users.
-        require_once($CFG->libdir . '/enrollib.php');
+        require_once ($CFG->libdir . '/enrollib.php');
         $courseusers = enrol_get_course_users($data->id);
         $enrolledusers = [];
 
@@ -3078,7 +3080,7 @@ class course_request
      */
     public function __isset($key)
     {
-        return(!empty($this->properties->$key));
+        return (!empty($this->properties->$key));
     }
 
     /**
@@ -3192,7 +3194,7 @@ class course_request
     {
         global $CFG, $DB, $USER;
 
-        require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
+        require_once ($CFG->dirroot . '/backup/util/includes/restore_includes.php');
 
         $user = $DB->get_record('user', array('id' => $this->properties->requester, 'deleted' => 0), '*', MUST_EXIST);
 
@@ -3521,7 +3523,7 @@ function include_course_ajax($course, $usedmodules = array(), $enabledmodules = 
         }
 
         // Load drag and drop upload AJAX.
-        require_once($CFG->dirroot . '/course/dnduploadlib.php');
+        require_once ($CFG->dirroot . '/course/dnduploadlib.php');
         dndupload_add_to_course($course, $enabledmodules);
     }
 
@@ -3622,7 +3624,7 @@ function create_module($moduleinfo)
 {
     global $DB, $CFG;
 
-    require_once($CFG->dirroot . '/course/modlib.php');
+    require_once ($CFG->dirroot . '/course/modlib.php');
 
     // Check manadatory attributs.
     $mandatoryfields = array('modulename', 'course', 'section', 'visible');
@@ -3661,7 +3663,7 @@ function update_module($moduleinfo)
 {
     global $DB, $CFG;
 
-    require_once($CFG->dirroot . '/course/modlib.php');
+    require_once ($CFG->dirroot . '/course/modlib.php');
 
     // Check the course module exists.
     $cm = get_coursemodule_from_id('', $moduleinfo->coursemodule, 0, false, MUST_EXIST);
@@ -3742,9 +3744,9 @@ function mod_duplicate_activity($course, $cm, $sr = null)
 function duplicate_module($course, $cm, int $sectionid = null, bool $changename = true): ?cm_info
 {
     global $CFG, $DB, $USER;
-    require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
-    require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
-    require_once($CFG->libdir . '/filelib.php');
+    require_once ($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+    require_once ($CFG->dirroot . '/backup/util/includes/restore_includes.php');
+    require_once ($CFG->libdir . '/filelib.php');
 
     $a = new stdClass();
     $a->modtype = get_string('modulename', $cm->modname);
@@ -3882,7 +3884,7 @@ function compare_activities_by_time_desc($a, $b)
     if ($a->timestamp == $b->timestamp) {
         return 0;
     }
-    return($a->timestamp > $b->timestamp) ? -1 : 1;
+    return ($a->timestamp > $b->timestamp) ? -1 : 1;
 }
 
 /**
@@ -3909,7 +3911,7 @@ function compare_activities_by_time_asc($a, $b)
     if ($a->timestamp == $b->timestamp) {
         return 0;
     }
-    return($a->timestamp < $b->timestamp) ? -1 : 1;
+    return ($a->timestamp < $b->timestamp) ? -1 : 1;
 }
 
 /**
@@ -4379,7 +4381,7 @@ function course_get_user_navigation_options($context, $course = null)
                 // This only needs to be calculated if the user can't manage badges (to improve performance).
                 $canview = has_capability('moodle/badges:viewbadges', $context);
                 if ($canview) {
-                    require_once($CFG->dirroot . '/lib/badgeslib.php');
+                    require_once ($CFG->dirroot . '/lib/badgeslib.php');
                     if (is_null($course)) {
                         $totalbadges = count(badges_get_badges(BADGE_TYPE_SITE, 0, '', '', 0, 0, $USER->id));
                     } else {
@@ -5051,7 +5053,7 @@ function course_check_module_updates_since($cm, $from, $fileareas = array(), $fi
     $supportgrades = plugin_supports('mod', $cm->modname, FEATURE_GRADE_HAS_GRADE);
     $supportgrades = $supportgrades or plugin_supports('mod', $cm->modname, FEATURE_GRADE_OUTCOMES);
     if ($supportgrades and (empty($filter) or (in_array('gradeitems', $filter) or in_array('outcomes', $filter)))) {
-        require_once($CFG->libdir . '/gradelib.php');
+        require_once ($CFG->libdir . '/gradelib.php');
         $grades = grade_get_grades($course->id, 'mod', $cm->modname, $mod->id, $USER->id);
 
         if (empty($filter) or in_array('gradeitems', $filter)) {
@@ -5082,8 +5084,8 @@ function course_check_module_updates_since($cm, $from, $fileareas = array(), $fi
     // Check comments.
     if (plugin_supports('mod', $cm->modname, FEATURE_COMMENT) and (empty($filter) or in_array('comments', $filter))) {
         $updates->comments = (object) array('updated' => false);
-        require_once($CFG->dirroot . '/comment/lib.php');
-        require_once($CFG->dirroot . '/comment/locallib.php');
+        require_once ($CFG->dirroot . '/comment/lib.php');
+        require_once ($CFG->dirroot . '/comment/locallib.php');
         $manager = new comment_manager();
         $comments = $manager->get_component_comments_since($course, $context, $component, $from, $cm);
         if (!empty($comments)) {
@@ -5095,7 +5097,7 @@ function course_check_module_updates_since($cm, $from, $fileareas = array(), $fi
     // Check ratings.
     if (plugin_supports('mod', $cm->modname, FEATURE_RATE) and (empty($filter) or in_array('ratings', $filter))) {
         $updates->ratings = (object) array('updated' => false);
-        require_once($CFG->dirroot . '/rating/lib.php');
+        require_once ($CFG->dirroot . '/rating/lib.php');
         $manager = new rating_manager();
         $ratings = $manager->get_component_ratings_since($context, $component, $from);
         if (!empty($ratings)) {
@@ -5483,7 +5485,7 @@ function course_get_course_dates_for_user_ids(stdClass $course, array $userids):
  */
 function course_get_course_dates_for_user_id(stdClass $course, int $userid): array
 {
-    return(course_get_course_dates_for_user_ids($course, [$userid]))[$userid];
+    return (course_get_course_dates_for_user_ids($course, [$userid]))[$userid];
 }
 
 /**
