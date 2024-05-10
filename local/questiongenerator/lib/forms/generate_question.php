@@ -16,7 +16,7 @@ class generate_question extends moodleform
         $this->mform->addHelpButton('questionsnumber', 'questionsnumber', 'local_questiongenerator');
         $this->mform->setType('questionsnumber', PARAM_INT);
 
-        $questionTypes = array('mcq' => 'Multiple Choice', 'truefalse' => 'True/False', 'shortanswer' => 'Short Answer');
+        $questionTypes = array('MultipleChoice' => 'Multiple Choice', 'TrueFalse' => 'True/False', 'ShortAnswer' => 'Short Answer');
         $this->mform->addElement('select', 'questiontype', get_string('questiontype', 'local_questiongenerator'), $questionTypes);
         $this->mform->addHelpButton('questiontype', 'questiontype', 'local_questiongenerator');
         $this->mform->setType('questiontype', PARAM_TEXT);
