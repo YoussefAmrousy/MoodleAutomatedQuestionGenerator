@@ -1,5 +1,5 @@
 import sys
-from shared import file_to_text, generate_response_gemini, generate_json_question_answer
+from shared import file_to_text, generate_response_gemini, append_metadata_to_questions
 
 
 def generate_questions(filepath: str, question_type: str, num_questions: int,
@@ -13,9 +13,9 @@ def generate_questions(filepath: str, question_type: str, num_questions: int,
     input_text: str = file_to_text(filepath)
     response = generate_response_gemini(input_text, question_type,
                                         num_questions, difficulty)
-    question_answer_json = generate_json_question_answer(
-        response, difficulty, question_type)
-    print(question_answer_json)
+    final_response = append_metadata_to_questions(response, difficulty,
+                                                  question_type)
+    print(final_response)
 
 
 if __name__ == "__main__":
