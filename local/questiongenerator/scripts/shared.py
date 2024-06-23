@@ -21,10 +21,13 @@ def file_to_text(filepath: str):
     return text
 
 
-def generate_response_gemini(input_text, question_type: str,
-                             num_questions: int, difficulty: str):
+def generate_response_gemini(input_text, question_type: str, num_questions: int, difficulty: str):
     load_dotenv()
-    genai.configure(api_key=os.getenv("API_KEY"))
+    api_key = os.getenv("API_KEY")
+    if not api_key:
+        raise ValueError("API Key not found. Make sure to set the API_KEY in the environment.")
+    
+    genai.configure(api_key=api_key)
 
     generation_config = {
         "temperature": 1,
@@ -56,11 +59,11 @@ def generate_response_gemini(input_text, question_type: str,
                                   generation_config=generation_config,
                                   safety_settings=safety_settings)
 
-    input = _generate_input(input_text, num_questions, question_type,
-                            difficulty)
+    input = _generate_input(input_text, num_questions, question_type, difficulty)
     prompt_parts = _generate_prompt_parts(input)
 
     response = model.generate_content(prompt_parts)
+    print("Generated response:\n", response.text)
     return response.text
 
 
@@ -81,55 +84,70 @@ def _generate_input(input_text, num_questions: int, question_type: str,
     return input
 
 
-def _generate_question_answer_json(response: str, difficulty: str,
-                                   question_type: str):
-    qa_pairs = response.strip().split("\n\n")
+def _generate_question_answer_json(response, difficulty, num_questions):
+    lines = response.strip().split('\n')
+    questions = []
 
-    questions_json = []
+    current_question = None
+    current_answer = None
 
-    for pair in qa_pairs:
-        question, answer = pair.split("\n")
+    for line in lines:
+        line = line.strip()
+        if line.startswith("**Q:**"):
+            current_question = line[6:].strip()
+        elif line.startswith("**A:**"):
+            current_answer = line[6:].strip()
+            if current_question is not None:
+                question_answer_json = {
+                    "question": current_question,
+                    "answer": current_answer,
+                    "difficulty": difficulty,
+                    "type": "true_false"
+                }
+                questions.append(question_answer_json)
+                current_question = None
+                current_answer = None
 
-        question_text = question.split(":")[1].strip()
-
-        answer_text = answer.split(":")[1].strip()
-
-        question_json = {
-            "question": question_text,
-            "answer": answer_text,
-            "difficulty": difficulty,
-            "type": question_type
-        }
-
-        questions_json.append(question_json)
-
-    json_data = json.dumps(questions_json, indent=4)
-    return json_data
+    return questions
 
 
-def _generate_multiple_choice_json(response: str, difficulty: str,
-                                   question_type: str):
-    questions = response.strip().split("\n\n")
 
-    questions_json = []
+def _generate_multiple_choice_json(response, difficulty, num_questions):
+    lines = response.strip().split('\n')
 
-    for question_block in questions:
-        lines = question_block.strip().split("\n")
-        question_text = lines[0]
-        options = {lines[i][0]: lines[i][3:] for i in range(1, 5)}
-        correct_answer = lines[5].split(") ")[1].strip()
+    # Filter out empty lines
+    lines = [line for line in lines if line.strip()]
 
-        question_json = {
-            "question": question_text,
-            "options": options,
-            "correct_answer": correct_answer,
-            "difficulty": difficulty,
-            "type": question_type
-        }
-        questions_json.append(question_json)
+    questions = []
+    i = 0
+    while i < len(lines):
+        if lines[i].startswith("Q"):
+            question = lines[i]
+            options = {}
+            i += 1
 
-    json_data = json.dumps(questions_json, indent=4)
-    return json_data
+            while i < len(lines) and not lines[i].startswith("**Answer:"):
+                if lines[i][1] == ')':  # Option lines start with a, b, c, d)
+                    option_key = lines[i][0]
+                    option_value = lines[i][3:]
+                    options[option_key] = option_value
+                i += 1
+
+            if i < len(lines) and lines[i].startswith("**Answer:"):
+                correct_answer = lines[i].split('**Answer: ')[1][0]
+
+            question_answer_json = {
+                "question": question,
+                "options": options,
+                "correct_answer": correct_answer,
+                "difficulty": difficulty,
+                "type": "multiple_choice"
+            }
+            questions.append(question_answer_json)
+
+        i += 1
+
+    return questions
 
 
 def generate_json_question_answer(response: str, difficulty: str,

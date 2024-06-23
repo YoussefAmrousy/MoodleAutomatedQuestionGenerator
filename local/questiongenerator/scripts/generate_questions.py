@@ -1,7 +1,6 @@
 import sys
 from shared import file_to_text, generate_response_gemini, generate_json_question_answer
 
-
 def generate_questions(filepath: str, question_type: str, num_questions: int,
                        difficulty: str):
     if (question_type == "MultipleChoice"):
