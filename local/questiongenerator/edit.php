@@ -97,21 +97,25 @@ if ($form_data = $form->get_data()) {
 
     // Set python script path based on the local path
     // Set python version based on your local python version to run the script
+
     $python_script = '/usr/local/var/www/moodle/local/questiongenerator/scripts/generate_questions.py';
     $command = "python3 $python_script $filepath $question_type " . (int) $form_data->questionsnumber . " " . $form_data->difficulty;
 
-    exec($command, $output, $return_var);
 
+    exec($command, $output, $return_var);
+    
     echo '<script>';
     echo 'document.getElementById("loadingScreen").style.display = "none";';
     echo '</script>';
-
+    
     if ($return_var == 0) {
         $_SESSION['question_output'] = $output;
         redirect(new moodle_url('/local/questiongenerator/view.php', array('courseid' => $course->id, 'id' => $cm->id)));
     } else {
-        var_dump('Error generating questions, please try again!');
+        echo 'Error generating questions, please try again!';
+        echo '<pre>' . print_r($output, true) . '</pre>'; // Print the output for debugging
     }
+    
 }
 
 $form->display();
