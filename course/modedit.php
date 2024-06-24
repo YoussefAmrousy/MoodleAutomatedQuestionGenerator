@@ -207,7 +207,7 @@ if ($mform->is_cancelled()) {
         unset($files);
         $mimetype = $file->get_mimetype(); // File type
 
-        if ($mimetype != 'application/pdf') {
+        if ($mimetype != 'application/pdf' && $mimetype !='application/msword') {
             $url = course_get_url($course, $cw->section, array('sr' => $sectionreturn));
             throw new \moodle_exception('invalidfiletype', 'local_questiongenerator', $url, );
         } else {
