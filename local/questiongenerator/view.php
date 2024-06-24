@@ -1,5 +1,5 @@
 <?php
-require_once ('../../config.php');
+require_once('../../config.php');
 
 $courseid = optional_param('courseid', 0, PARAM_INT);
 $id = optional_param('id', 0, PARAM_INT);
@@ -37,6 +37,9 @@ $PAGE->set_heading('Preview Questions');
 
 echo '<h2 class="lecture-name">Preview Questions</h2>';
 
+// Start form to submit selected questions
+echo '<form id="saveQuestionsForm" action="save_questions.php" method="post">';
+
 $table = new html_table();
 $table->head = array('Index', 'Question', 'Answer', 'Difficulty', 'Action');
 
@@ -64,14 +67,19 @@ foreach ($questions_array['questions'] as $pair) {
     } else {
         $answer = "<strong>" . $pair['answer'] . "</strong>";
     }
-    $checkbox = html_writer::checkbox("selected_questions[]", $question_json, true);
+
+    // Checkbox to select question
+    $checkbox = html_writer::checkbox("selected_questions[]", $question_json, false);
     $table->data[] = array($index, "<span class='editable-question'>$question</span>", $answer, $difficulty, $checkbox);
 }
 
 echo html_writer::table($table);
+
 echo "<div class='d-flex justify-content-end'>";
 echo "<input type='submit' value='Save Selected Questions' class='btn btn-primary'>";
 echo "</div>";
+
+echo '</form>'; // End form
 
 echo $OUTPUT->footer();
 ?>
@@ -107,18 +115,33 @@ document.addEventListener('DOMContentLoaded', function() {
             input.focus();
         });
     });
+
+    // Handle checkbox changes to submit form
+    document.getElementById('saveQuestionsForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
+        
+        var selectedQuestions = [];
+        var checkboxes = document.querySelectorAll('input[name="selected_questions[]"]:checked');
+        checkboxes.forEach(function(checkbox) {
+            selectedQuestions.push(JSON.parse(checkbox.value));
+        });
+
+        // Post selected questions to save_questions.php
+        fetch('save_questions.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ selected_questions: selectedQuestions }),
+        })
+        .then(response => response.text())
+        .then(data => {
+            // Redirect to the tutorial page or handle the result
+            window.location.href = 'tutorial.php'; // Replace with your tutorial page URL
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
 });
 </script>
-
-<style>
-.editable-question {
-    cursor: pointer;
-    display: inline-block;
-    padding: 5px;
-    border: 1px dashed transparent;
-}
-
-.editable-question:hover {
-    border: 1px dashed #ccc;
-}
-</style>
