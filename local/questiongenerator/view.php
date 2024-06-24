@@ -88,7 +88,6 @@ echo $OUTPUT->footer();
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.editable-question').forEach(function(element) {
         element.addEventListener('click', function() {
-            // Prevent re-initializing the input field if it already exists
             if (this.querySelector('input')) {
                 return;
             }
@@ -127,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Post selected questions to save_questions.php
-        fetch('save_questions.php', {
+        fetch('save_questions.php?courseid=<?php echo $courseid; ?>&id=<?php echo $id; ?>', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -136,8 +135,13 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.text())
         .then(data => {
-            // Redirect to the tutorial page or handle the result
-            window.location.href = 'tutorial.php'; // Replace with your tutorial page URL
+            // Handle the response
+            if (data.includes('Error')) {
+                console.error(data);
+            } else {
+                // Redirect to the tutorial page or handle the result
+                window.location.href = 'tutorial.php?xml=' + encodeURIComponent(data) + '&courseid=<?php echo $courseid; ?>&id=<?php echo $id; ?>';
+            }
         })
         .catch(error => {
             console.error('Error:', error);
@@ -145,3 +149,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+

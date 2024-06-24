@@ -97,11 +97,9 @@ if ($form_data = $form->get_data()) {
 
     // Set python script path based on the local path
     // Set python version based on your local python version to run the script
-
+   // $python_interpreter = '/opt/homebrew/var/www/moodle/venv/bin/python3';
     $python_script = '/usr/local/var/www/moodle/local/questiongenerator/scripts/generate_questions.py';
     $command = "python3 $python_script $filepath $question_type " . (int) $form_data->questionsnumber . " " . $form_data->difficulty;
-
-
     exec($command, $output, $return_var);
     
     echo '<script>';
