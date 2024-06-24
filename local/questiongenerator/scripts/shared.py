@@ -4,6 +4,8 @@ import json
 import os
 from dotenv import load_dotenv
 from prompt_parts import generate_prompt_parts
+import docx
+
 
 
 def _extract_text_from_page(page: any):
@@ -12,13 +14,19 @@ def _extract_text_from_page(page: any):
 
 def file_to_text(filepath: str):
     text = ""
-    with fitz.open(filepath) as pdf_document:
-        num_pages = pdf_document.page_count
+    file_extension = os.path.splitext(filepath)[1].lower()
+    
+    if file_extension == '.pdf':
+        with fitz.open(filepath) as pdf_document:
+            num_pages = pdf_document.page_count
 
-        for page_num in range(num_pages):
-            page = pdf_document[page_num]
-            text += _extract_text_from_page(page)
-
+            for page_num in range(num_pages):
+                page = pdf_document[page_num]
+                text += _extract_text_from_page(page)
+    elif file_extension == '.docx':
+        doc = docx.Document(filepath)
+        for para in doc.paragraphs:
+            text += para.text + "\n"
     return text
 
 
