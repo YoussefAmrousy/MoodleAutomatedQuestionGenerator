@@ -91,7 +91,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    $desktop_path = '/Users/youssefalamrousy/Downloads';
+    // Determine the OS and get the desktop path accordingly
+    $os = PHP_OS_FAMILY;
+
+    if ($os == 'Windows') {
+        $desktop_path = getenv('USERPROFILE') . '\Downloads';
+    } else {
+        $desktop_path = getenv('HOME') . '/Downloads';
+    }
     $xml_filepath = $desktop_path . '/Moodle_Generated_Questions.xml';
     $xml->asXML($xml_filepath);
 
