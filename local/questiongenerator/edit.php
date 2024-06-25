@@ -80,7 +80,7 @@ if (count($files) < 1) {
 $form = new generate_question();
 
 if ($form_data = $form->get_data()) {
-    $prefix = ($file_extension == 'pdf') ? 'pdf_' : 'doc_'; 
+    $prefix = ($file_extension == 'pdf') ? 'pdf_' : (($file_extension == 'doc' || $file_extension == 'docx') ? 'doc_' : '');
     $temp_file = tempnam(sys_get_temp_dir(), $prefix);
     copy($filepath, $temp_file);
 
