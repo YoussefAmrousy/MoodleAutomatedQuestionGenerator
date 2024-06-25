@@ -113,7 +113,31 @@ if ($form_data = $form->get_data()) {
         echo 'Error generating questions, please try again!';
         echo '<pre>' . print_r($output, true) . '</pre>'; // Print the output for debugging
     }
-    
+// This should be in the script where you generate questions
+session_start();
+
+$questions = [
+    [
+        'type' => 'Multiple Choice',
+        'question' => 'Sample question 1?',
+        'options' => ['Option 1', 'Option 2'],
+        'correct_answer' => 'Option 1',
+        'difficulty' => 'Easy'
+    ],
+    [
+        'type' => 'Short Answer',
+        'question' => 'Sample question 2?',
+        'answer' => 'Sample answer 2',
+        'difficulty' => 'Medium'
+    ]
+];
+
+$_SESSION['question_output'] = json_encode($questions);
+
+// Redirect to view.php
+header("Location: /local/questiongenerator/view.php?courseid=$courseid&id=$id");
+exit();
+
 }
 
 $form->display();

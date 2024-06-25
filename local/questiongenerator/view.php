@@ -1,5 +1,5 @@
 <?php
-require_once ('../../config.php');
+require_once('../../config.php');
 
 $courseid = optional_param('courseid', 0, PARAM_INT);
 $id = optional_param('id', 0, PARAM_INT);
@@ -28,14 +28,29 @@ session_start();
 echo $OUTPUT->header();
 
 $question_output = isset($_SESSION['question_output']) ? $_SESSION['question_output'] : '[]';
-$json_string = implode('', $question_output);
-$json_string = rtrim($json_string, ',');
+
+// Check if $question_output is an array and implode it if necessary
+if (is_array($question_output)) {
+    $json_string = implode('', $question_output);
+} else {
+    $json_string = $question_output;
+}
+
 $questions_array = json_decode($json_string, true);
+
+if (json_last_error() !== JSON_ERROR_NONE) {
+    echo '<p>Error decoding JSON: ' . json_last_error_msg() . '</p>';
+    echo $OUTPUT->footer();
+    exit;
+}
 
 $PAGE->set_title('Preview Questions');
 $PAGE->set_heading('Preview Questions');
 
 echo '<h2 class="lecture-name">Preview Questions</h2>';
+
+// Start form to submit selected questions
+echo '<form id="saveQuestionsForm" action="save_questions.php" method="post">';
 
 $table = new html_table();
 $table->head = array('Index', 'Question', 'Answer', 'Difficulty', 'Action');
@@ -64,14 +79,19 @@ foreach ($questions_array['questions'] as $pair) {
     } else {
         $answer = "<strong>" . $pair['answer'] . "</strong>";
     }
-    $checkbox = html_writer::checkbox("selected_questions[]", $question_json, true);
+
+    // Checkbox to select question
+    $checkbox = html_writer::checkbox("selected_questions[]", $question_json, false);
     $table->data[] = array($index, "<span class='editable-question'>$question</span>", $answer, $difficulty, $checkbox);
 }
 
 echo html_writer::table($table);
+
 echo "<div class='d-flex justify-content-end'>";
 echo "<input type='submit' value='Save Selected Questions' class='btn btn-primary'>";
 echo "</div>";
+
+echo '</form>'; // End form
 
 echo $OUTPUT->footer();
 ?>
@@ -107,18 +127,36 @@ document.addEventListener('DOMContentLoaded', function() {
             input.focus();
         });
     });
+
+    // Handle form submission
+    document.getElementById('saveQuestionsForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
+        
+        var selectedQuestions = [];
+        var checkboxes = document.querySelectorAll('input[name="selected_questions[]"]:checked');
+        checkboxes.forEach(function(checkbox) {
+            selectedQuestions.push(JSON.parse(checkbox.value)); // Parse JSON string to object
+        });
+
+        // Post selected questions to save_questions.php
+        fetch('save_questions.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ selected_questions: selectedQuestions }), // Convert object to JSON string
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.redirect) {
+                window.location.href = data.redirect; // Redirect to tutorial.php
+            } else {
+                console.error('Error:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
 });
 </script>
-
-<style>
-.editable-question {
-    cursor: pointer;
-    display: inline-block;
-    padding: 5px;
-    border: 1px dashed transparent;
-}
-
-.editable-question:hover {
-    border: 1px dashed #ccc;
-}
-</style>
