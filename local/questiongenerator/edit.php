@@ -80,7 +80,8 @@ if (count($files) < 1) {
 $form = new generate_question();
 
 if ($form_data = $form->get_data()) {
-    $temp_file = tempnam(sys_get_temp_dir(), 'pdf_');
+    $prefix = ($file_extension == 'pdf') ? 'pdf_' : 'doc_';
+    $temp_file = tempnam(sys_get_temp_dir(), $prefix);
     copy($filepath, $temp_file);
 
     echo '<div class="loading-screen" id="loadingScreen">Generating Questions...</div>';
@@ -99,13 +100,13 @@ if ($form_data = $form->get_data()) {
     $python_interpreter = '/opt/homebrew/var/www/moodle/venv/bin/python3';
     $python_script = '/opt/homebrew/var/www/moodle/local/questiongenerator/scripts/generate_questions.py';
     $command = "$python_interpreter $python_script $filepath $question_type " . (int) $form_data->questionsnumber . " " . $form_data->difficulty;
-    
+
     exec($command, $output, $return_var);
-    
+
     echo '<script>';
     echo 'document.getElementById("loadingScreen").style.display = "none";';
     echo '</script>';
-    
+
     if ($return_var == 0) {
         $_SESSION['question_output'] = $output;
         redirect(new moodle_url('/local/questiongenerator/view.php', array('courseid' => $course->id, 'id' => $cm->id)));
@@ -113,31 +114,6 @@ if ($form_data = $form->get_data()) {
         echo 'Error generating questions, please try again!';
         echo '<pre>' . print_r($output, true) . '</pre>'; // Print the output for debugging
     }
-// This should be in the script where you generate questions
-session_start();
-
-$questions = [
-    [
-        'type' => 'Multiple Choice',
-        'question' => 'Sample question 1?',
-        'options' => ['Option 1', 'Option 2'],
-        'correct_answer' => 'Option 1',
-        'difficulty' => 'Easy'
-    ],
-    [
-        'type' => 'Short Answer',
-        'question' => 'Sample question 2?',
-        'answer' => 'Sample answer 2',
-        'difficulty' => 'Medium'
-    ]
-];
-
-$_SESSION['question_output'] = json_encode($questions);
-
-// Redirect to view.php
-header("Location: /local/questiongenerator/view.php?courseid=$courseid&id=$id");
-exit();
-
 }
 
 $form->display();

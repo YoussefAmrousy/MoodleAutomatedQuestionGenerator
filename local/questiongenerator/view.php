@@ -1,5 +1,5 @@
 <?php
-require_once('../../config.php');
+require_once ('../../config.php');
 
 $courseid = optional_param('courseid', 0, PARAM_INT);
 $id = optional_param('id', 0, PARAM_INT);
@@ -50,7 +50,7 @@ $PAGE->set_heading('Preview Questions');
 echo '<h2 class="lecture-name">Preview Questions</h2>';
 
 // Start form to submit selected questions
-echo '<form id="saveQuestionsForm" action="save_questions.php" method="post">';
+echo '<form id="saveQuestionsForm" method="post">';
 
 $table = new html_table();
 $table->head = array('Index', 'Question', 'Answer', 'Difficulty', 'Action');
@@ -88,7 +88,7 @@ foreach ($questions_array['questions'] as $pair) {
 echo html_writer::table($table);
 
 echo "<div class='d-flex justify-content-end'>";
-echo "<input type='submit' value='Save Selected Questions' class='btn btn-primary'>";
+echo "<input type='button' id='submitBtn' value='Save Selected Questions' class='btn btn-primary'>";
 echo "</div>";
 
 echo '</form>'; // End form
@@ -113,7 +113,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             input.addEventListener('blur', function() {
                 element.innerText = this.value;
-                // Here you can add an AJAX call to save the edited question to the server if needed.
             });
 
             input.addEventListener('keypress', function(e) {
@@ -128,35 +127,34 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Handle form submission
-    document.getElementById('saveQuestionsForm').addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent default form submission
-        
-        var selectedQuestions = [];
-        var checkboxes = document.querySelectorAll('input[name="selected_questions[]"]:checked');
-        checkboxes.forEach(function(checkbox) {
-            selectedQuestions.push(JSON.parse(checkbox.value)); // Parse JSON string to object
-        });
+    document.getElementById('submitBtn').addEventListener('click', function() {
+    var selectedQuestions = [];
+    var checkboxes = document.querySelectorAll('input[name="selected_questions[]"]:checked');
+    
+    if (checkboxes.length === 0) {
+        alert('You must select at least one question!');
+        return;
+    }
 
-        // Post selected questions to save_questions.php
-        fetch('save_questions.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ selected_questions: selectedQuestions }), // Convert object to JSON string
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.redirect) {
-                window.location.href = data.redirect; // Redirect to tutorial.php
-            } else {
-                console.error('Error:', data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
+    checkboxes.forEach(function(checkbox) {
+        selectedQuestions.push(JSON.parse(checkbox.value));
     });
+
+    var formData = new FormData();
+    formData.append('selected_questions', JSON.stringify(selectedQuestions));
+
+    fetch('save_questions.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        window.location.href = data.redirect;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+
 });
 </script>
