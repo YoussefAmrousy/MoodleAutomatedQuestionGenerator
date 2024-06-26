@@ -23,13 +23,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once("../config.php");
-require_once("lib.php");
-require_once($CFG->libdir . '/filelib.php');
-require_once($CFG->libdir . '/gradelib.php');
-require_once($CFG->libdir . '/completionlib.php');
-require_once($CFG->libdir . '/plagiarismlib.php');
-require_once($CFG->dirroot . '/course/modlib.php');
+require_once ("../config.php");
+require_once ("lib.php");
+require_once ($CFG->libdir . '/filelib.php');
+require_once ($CFG->libdir . '/gradelib.php');
+require_once ($CFG->libdir . '/completionlib.php');
+require_once ($CFG->libdir . '/plagiarismlib.php');
+require_once ($CFG->dirroot . '/course/modlib.php');
 
 $add = optional_param('add', '', PARAM_ALPHANUM);     // Module name.
 $update = optional_param('update', 0, PARAM_INT);
@@ -151,7 +151,7 @@ $PAGE->add_body_class('limitedwidth');
 
 $modmoodleform = "$CFG->dirroot/mod/$module->name/mod_form.php";
 if (file_exists($modmoodleform)) {
-    require_once($modmoodleform);
+    require_once ($modmoodleform);
 } else {
     throw new \moodle_exception('noformdesc');
 }
