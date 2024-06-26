@@ -23,13 +23,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once("../config.php");
-require_once("lib.php");
-require_once($CFG->libdir . '/filelib.php');
-require_once($CFG->libdir . '/gradelib.php');
-require_once($CFG->libdir . '/completionlib.php');
-require_once($CFG->libdir . '/plagiarismlib.php');
-require_once($CFG->dirroot . '/course/modlib.php');
+require_once ("../config.php");
+require_once ("lib.php");
+require_once ($CFG->libdir . '/filelib.php');
+require_once ($CFG->libdir . '/gradelib.php');
+require_once ($CFG->libdir . '/completionlib.php');
+require_once ($CFG->libdir . '/plagiarismlib.php');
+require_once ($CFG->dirroot . '/course/modlib.php');
 
 $add = optional_param('add', '', PARAM_ALPHANUM);     // Module name.
 $update = optional_param('update', 0, PARAM_INT);
@@ -151,7 +151,7 @@ $PAGE->add_body_class('limitedwidth');
 
 $modmoodleform = "$CFG->dirroot/mod/$module->name/mod_form.php";
 if (file_exists($modmoodleform)) {
-    require_once($modmoodleform);
+    require_once ($modmoodleform);
 } else {
     throw new \moodle_exception('noformdesc');
 }
@@ -207,7 +207,7 @@ if ($mform->is_cancelled()) {
         unset($files);
         $mimetype = $file->get_mimetype(); // File type
 
-        if ($mimetype != 'application/pdf' && $mimetype !='application/msword') {
+        if ($mimetype != 'application/pdf' && $mimetype != 'application/msword' && $mimetype != 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
             $url = course_get_url($course, $cw->section, array('sr' => $sectionreturn));
             throw new \moodle_exception('invalidfiletype', 'local_questiongenerator', $url, );
         } else {

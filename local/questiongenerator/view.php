@@ -28,6 +28,7 @@ session_start();
 echo $OUTPUT->header();
 
 $question_output = isset($_SESSION['question_output']) ? $_SESSION['question_output'] : '[]';
+$lecture = isset($_SESSION['lecture']) ? $_SESSION['lecture'] : '';
 
 // Check if $question_output is an array and implode it if necessary
 if (is_array($question_output)) {
@@ -51,7 +52,8 @@ echo '<h2 class="lecture-name">Preview Questions</h2>';
 
 // Start form to submit selected questions
 echo '<form id="saveQuestionsForm" method="post">';
-
+echo '<input type="hidden" name="courseid" value="' . $courseid . '">';
+echo '<input type="hidden" name="lecture" value =' . $lecture . '">';
 $table = new html_table();
 $table->head = array('Index', 'Question', 'Answer', 'Difficulty', 'Action');
 
@@ -130,6 +132,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('submitBtn').addEventListener('click', function() {
     var selectedQuestions = [];
     var checkboxes = document.querySelectorAll('input[name="selected_questions[]"]:checked');
+    var courseid = document.querySelector('input[name="courseid"]').value;
+    var lecture = document.querySelector('input[name="lecture"]').value;
     
     if (checkboxes.length === 0) {
         alert('You must select at least one question!');
@@ -142,6 +146,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var formData = new FormData();
     formData.append('selected_questions', JSON.stringify(selectedQuestions));
+    formData.append('courseid', courseid);
+    formData.append('lecture', lecture);
 
     fetch('save_questions.php', {
         method: 'POST',
@@ -149,7 +155,11 @@ document.addEventListener('DOMContentLoaded', function() {
     })
     .then(response => response.json())
     .then(data => {
-        window.location.href = data.redirect;
+        window.location.href = data.download_url;
+
+        setTimeout(function() {
+                window.location.href = 'tutorial.php?courseid=' + courseid;
+            }, 2000);
     })
     .catch(error => {
         console.error('Error:', error);

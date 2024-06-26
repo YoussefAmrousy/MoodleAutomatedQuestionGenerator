@@ -1,16 +1,16 @@
 <?php
-use core_privacy\local\metadata\types\type;
-
 require_once ('../../config.php');
 require_login();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $selected_questions = isset($_POST['selected_questions']) ? $_POST['selected_questions'] : '[]';
+    $courseid = isset($_POST['courseid']) ? $_POST['courseid'] : '0';
+    $lecture = isset($_POST['lecture']) ? $_POST['lecture'] : 'lecture';
 
     $questions_array = json_decode($selected_questions, true);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
-        echo 'Error decoding JSON: ' . json_last_error_msg();
+        echo json_encode(['error' => 'Error decoding JSON: ' . json_last_error_msg()]);
         exit; // Exit if JSON decoding fails
     }
 
@@ -34,8 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $questiontext_element = $question_element->addChild('questiontext');
         $questiontext_element->addAttribute('format', 'html');
-        $questiontext_element->addChild('text', '<![CDATA[<p>' . htmlspecialchars($question['question']) . '</p>');
-
+        $questiontext_element->addChild('text', '<![CDATA[<p>' . htmlspecialchars($question['question']) . '</p>]]>');
 
         $question_element->addChild('generalfeedback')->addAttribute('format', 'html');
         $question_element->addChild('defaultgrade', '1.0000000');
@@ -65,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $answer = $question_element->addChild('answer');
                 $answer->addAttribute('fraction', ($option == $question['correct_answer']) ? '100' : '0');
                 $answer->addAttribute('format', 'html');
-                $answer->addChild('text', '<![CDATA[<p>' . htmlspecialchars($option) . '</p>');
+                $answer->addChild('text', '<![CDATA[<p>' . htmlspecialchars($option) . '</p>]]>');
                 $answer->addChild('feedback')->addAttribute('format', 'html');
             }
         } elseif ($question_type == 'shortanswer') {
@@ -91,14 +90,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    $desktop_path = '/Users/youssefalamrousy/Downloads';
-    $xml_filepath = $desktop_path . '/Moodle_Generated_Questions.xml';
+    // Save the XML file to a temporary location
+    $temp_dir = sys_get_temp_dir();
+    $file_name = 'Moodle_Generated_Questions_' . $lecture . '_' . time() . '.xml';
+    $xml_filepath = $temp_dir . '/' . $file_name;
     $xml->asXML($xml_filepath);
 
-    $redirect_url = new moodle_url('/local/questiongenerator/tutorial.php');
-    echo json_encode(['redirect' => $redirect_url->out()]);
+    // Create a URL to download the file
+    $file_url = new moodle_url('/local/questiongenerator/download.php', ['file' => urlencode($file_name)]);
+    echo json_encode(['download_url' => $file_url->out()]);
     exit();
-
 } else {
     echo 'Invalid request method.';
 }

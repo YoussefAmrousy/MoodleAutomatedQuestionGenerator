@@ -1,5 +1,6 @@
 <?php
 require_once ('../../config.php');
+$courseid = optional_param('courseid', 0, PARAM_INT);
 
 $PAGE->set_url('/local/questiongenerator/tutorial.php');
 $PAGE->set_title('Tutorial Page');
@@ -35,7 +36,7 @@ echo '<style>
 </style>';
 
 // Success message
-echo '<div class="center"><h5>Questions have been successfully generated and saved to your downloads folder as Moodle_Generated_Questions.</h5></div>';
+echo '<div class="center"><h5>Questions have been successfully generated and saved to your downloads folder as Moodle_Generated_Questions.xml.</h5></div>';
 
 // Video embed
 echo '<div class="video-container center">';
@@ -47,13 +48,14 @@ echo '</div>';
 
 // Additional instructions and download links
 echo '<div class="center">';
-echo '<p>This video demonstrates how to import the generated questions file into Question Bank.</p>';
+echo '<p>This video demonstrates how to import the generated questions file into the Question Bank.</p>';
 echo '<p>Click <a href="import-generated-questions-file-video.mov" download>here</a> to download the video.</p>';
 echo '</div>';
 
 // Button to redirect to Question Bank
+$question_bank_url = new moodle_url('/question/edit.php', ['courseid' => $courseid]);
 echo '<div class="button-container">';
-echo '<a href="path/to/question/bank" class="button">Go to Question Bank</a>';
+echo '<a href="' . $question_bank_url->out() . '" class="button">Go to Question Bank</a>';
 echo '</div>';
 
 echo $OUTPUT->footer();
